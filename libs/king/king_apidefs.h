@@ -6,7 +6,7 @@
 #define KINDOM_KING_APIDEFS_H
 
 #define inkliapi
-#define inkcoreapi
+#define kcoreapi
 #define ink_undoc_liapi
 #define ink_undoc_coreapi inkcoreapi
 

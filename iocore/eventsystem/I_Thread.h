@@ -45,7 +45,7 @@ public:
   Thread();
   //    virtual ~Thread();
 
-  //    static ink_hrtime cur_time;
+    static khrtime cur_time;
   static kthread_key thread_data_key;
 
 private:

@@ -10,6 +10,7 @@
 #include <semaphore.h>
 
 #include "king/king_error.h"
+#include "king/king_hrtime.h"
 
 #define KMUTEX_INIT PTHREAD_MUTEX_INITIALIZER
 #define KTHREAD_STACK_MIN PTHREAD_STACK_MIN
@@ -17,6 +18,19 @@
 typedef pthread_t kthread;
 typedef pthread_cond_t kcond;
 typedef pthread_key_t kthread_key;
+
+static inline void
+kthread_key_create(kthread_key *key, void (*destructor)(void *value))
+{
+    kassert(!pthread_key_create(key, destructor));
+}
+
+
+static inline void
+kthread_setspecific(kthread_key key, void *value)
+{
+    kassert(!pthread_setspecific(key, value));
+}
 
 inline kthread
 kthread_create(void *(*f)(void *), void *a, int detached, size_t stacksize, void *stack)

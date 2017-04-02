@@ -14,11 +14,30 @@ struct thread_ctx {
   char name[MAX_THREAD_NAME_LENGTH];
 };
 
+
+khrtime Thread::cur_time                       = 0;
+
+static kthread_key init_thread_key();
+kcoreapi kthread_key Thread::thread_data_key = init_thread_key();
+
 Thread::Thread()
 {
   //   mutex = new_ProxyMutex();
   //   MUTEX_TAKE_LOCK(mutex, (EThread *)this);
   //   mutex->nthread_holding = THREAD_MUTEX_THREAD_HOLDING;
+}
+
+static void
+key_destructor(void *value)
+{
+    (void)value;
+}
+
+kthread_key
+init_thread_key()
+{
+    kthread_key_create(&Thread::thread_data_key, key_destructor);
+    return Thread::thread_data_key;
 }
 
 static void *
