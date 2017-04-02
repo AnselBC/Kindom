@@ -33,6 +33,12 @@ kthread_setspecific(kthread_key key, void *value)
   kassert(!pthread_setspecific(key, value));
 }
 
+static inline void *
+kthread_getspecific(kthread_key key)
+{
+  return pthread_getspecific(key);
+}
+
 inline kthread
 kthread_create(void *(*f)(void *), void *a, int detached, size_t stacksize, void *stack)
 {

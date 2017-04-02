@@ -8,5 +8,6 @@
 #include "king/king_platform.h"
 
 #include "I_EventSystem.h"
+#include "P_Thread.h"
 
 #endif // KINDOM_P_EVENTSYSTEM_H

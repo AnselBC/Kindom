@@ -20,8 +20,7 @@ Thread::set_specific()
 inline Thread *
 this_thread()
 {
-  //    return (Thread *)ink_thread_getspecific(Thread::thread_data_key);
-  return nullptr;
+  return (Thread *)kthread_getspecific(Thread::thread_data_key);
 }
 
 #endif // KINDOM_P_THREAD_H

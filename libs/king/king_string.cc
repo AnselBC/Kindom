@@ -2,6 +2,14 @@
 // Created by 宋辰伟 on 2017/4/2.
 //
 
+#include <assert.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "king/king_platform.h"
+#include "king/king_assert.h"
+
 size_t
 kstrlcpy(char *dst, const char *src, size_t siz)
 {
