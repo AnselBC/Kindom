@@ -7,23 +7,22 @@
 
 #include "I_Thread.h"
 
-inline
-Thread::~Thread()
+inline Thread::~Thread()
 {
 }
 
 inline void
 Thread::set_specific()
 {
-//    ink_thread_setspecific(Thread::thread_data_key, this);
-    return nullptr;
+  //    ink_thread_setspecific(Thread::thread_data_key, this);
+  return nullptr;
 }
 
 inline Thread *
 this_thread()
 {
-//    return (Thread *)ink_thread_getspecific(Thread::thread_data_key);
-    return nullptr;
+  //    return (Thread *)ink_thread_getspecific(Thread::thread_data_key);
+  return nullptr;
 }
 
-#endif //KINDOM_P_THREAD_H
+#endif // KINDOM_P_THREAD_H

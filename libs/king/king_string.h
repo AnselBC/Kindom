@@ -7,4 +7,4 @@
 
 #include <string.h>
 
-#endif //KINDOM_KING_STRING_H
+#endif // KINDOM_KING_STRING_H

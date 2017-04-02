@@ -10,7 +10,7 @@
 int
 main()
 {
-    Thread *thread = new Thread();
-    thread->start("hello", 0, nullptr, nullptr, nullptr);
-	sleep(1);
+  Thread *thread = new Thread();
+  thread->start("hello", 0, nullptr, nullptr, nullptr);
+  sleep(1);
 }

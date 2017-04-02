@@ -9,4 +9,4 @@
 
 #include "I_EventSystem.h"
 
-#endif //KINDOM_P_EVENTSYSTEM_H
+#endif // KINDOM_P_EVENTSYSTEM_H

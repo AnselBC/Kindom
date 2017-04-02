@@ -10,6 +10,4 @@
 #include <string.h>
 #include <syslog.h>
 
-
-
-#endif //KINDOM_KING_PLATFORM_H
+#endif // KINDOM_KING_PLATFORM_H

@@ -5,5 +5,4 @@
 #ifndef KINDOM_KING_H
 #define KINDOM_KING_H
 
-
-#endif //KINDOM_KING_H
+#endif // KINDOM_KING_H

@@ -8,4 +8,4 @@
 #include "king/king_platform.h"
 #include "I_Thread.h"
 
-#endif //KINDOM_I_EVENTSYSTEM_H
+#endif // KINDOM_I_EVENTSYSTEM_H

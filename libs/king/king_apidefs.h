@@ -56,5 +56,4 @@
 #define TS_INLINE inline
 #endif
 
-
-#endif //KINDOM_KING_APIDEFS_H
+#endif // KINDOM_KING_APIDEFS_H
