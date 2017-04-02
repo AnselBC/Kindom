@@ -5,6 +5,7 @@
 #include "P_EventSystem.h"
 
 #include "king/king_string.h"
+#include "king/king_memory.h"
 
 struct thread_ctx {
   ThreadFunction f;

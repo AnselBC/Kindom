@@ -5,4 +5,6 @@
 #ifndef KINDOM_KING_MEMORY_H
 #define KINDOM_KING_MEMORY_H
 
+#define kmalloc malloc
+
 #endif // KINDOM_KING_MEMORY_H
