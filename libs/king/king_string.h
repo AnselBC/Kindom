@@ -7,4 +7,6 @@
 
 #include <string.h>
 
+size_t kstrlcpy(char *dst, const char *src, size_t siz);
+
 #endif // KINDOM_KING_STRING_H

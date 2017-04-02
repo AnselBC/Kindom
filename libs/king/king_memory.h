@@ -6,5 +6,6 @@
 #define KINDOM_KING_MEMORY_H
 
 #define kmalloc malloc
+#define kfree free
 
 #endif // KINDOM_KING_MEMORY_H

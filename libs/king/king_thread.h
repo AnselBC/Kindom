@@ -12,6 +12,7 @@
 #include "king/king_error.h"
 #include "king/king_hrtime.h"
 #include "king/king_assert.h"
+#include "king/king_defs.h"
 
 #define KMUTEX_INIT PTHREAD_MUTEX_INITIALIZER
 #define KTHREAD_STACK_MIN PTHREAD_STACK_MIN
@@ -61,6 +62,12 @@ kthread_create(void *(*f)(void *), void *a, int detached, size_t stacksize, void
   pthread_attr_destroy(&attr);
 
   return t;
+}
+
+static inline void
+kset_thread_name(const char *name KUNUSED)
+{
+    pthread_setname_np(pthread_self(), name);
 }
 
 #endif // KINDOM_KING_THREAD_H
