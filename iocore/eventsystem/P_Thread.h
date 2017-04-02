@@ -14,14 +14,14 @@ inline Thread::~Thread()
 inline void
 Thread::set_specific()
 {
-    kthread_setspecific(Thread::thread_data_key, this);
+  kthread_setspecific(Thread::thread_data_key, this);
 }
 
 inline Thread *
 this_thread()
 {
-    //    return (Thread *)ink_thread_getspecific(Thread::thread_data_key);
-    return nullptr;
+  //    return (Thread *)ink_thread_getspecific(Thread::thread_data_key);
+  return nullptr;
 }
 
 #endif // KINDOM_P_THREAD_H

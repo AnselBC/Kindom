@@ -10,4 +10,4 @@
 #include <stdlib.h>
 
 #define int64_t khrtime
-#endif //PROJECT_KING_HRTIME_H
+#endif // PROJECT_KING_HRTIME_H

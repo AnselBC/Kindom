@@ -10,5 +10,4 @@
 
 #define kassert(EX) ((void)(likely(EX) ? (void)0 : _king_assert(#EX, __FILE__, __LINE__)))
 
-
-#endif //KINDOM_KING_ASSERT_H
+#endif // KINDOM_KING_ASSERT_H

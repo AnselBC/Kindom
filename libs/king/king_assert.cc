@@ -10,5 +10,5 @@
 void
 _king_assert(const char *expression, const char *file, int line)
 {
-    king_abort("%s:%d: failed assertion `%s`", file, line, expression);
+  king_abort("%s:%d: failed assertion `%s`", file, line, expression);
 }

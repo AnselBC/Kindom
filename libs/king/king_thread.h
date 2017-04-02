@@ -22,14 +22,13 @@ typedef pthread_key_t kthread_key;
 static inline void
 kthread_key_create(kthread_key *key, void (*destructor)(void *value))
 {
-    kassert(!pthread_key_create(key, destructor));
+  kassert(!pthread_key_create(key, destructor));
 }
-
 
 static inline void
 kthread_setspecific(kthread_key key, void *value)
 {
-    kassert(!pthread_setspecific(key, value));
+  kassert(!pthread_setspecific(key, value));
 }
 
 inline kthread
