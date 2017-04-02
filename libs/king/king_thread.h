@@ -11,6 +11,7 @@
 
 #include "king/king_error.h"
 #include "king/king_hrtime.h"
+#include "king/king_assert.h"
 
 #define KMUTEX_INIT PTHREAD_MUTEX_INITIALIZER
 #define KTHREAD_STACK_MIN PTHREAD_STACK_MIN
@@ -55,7 +56,7 @@ kthread_create(void *(*f)(void *), void *a, int detached, size_t stacksize, void
 
   ret = pthread_create(&t, &attr, f, a);
   if (ret != 0) {
-    //        king_abort("pthread_create() failed: %s (%d)", strerror(ret), ret);
+    king_abort("pthread_create() failed: %s (%d)", strerror(ret), ret);
   }
   pthread_attr_destroy(&attr);
 

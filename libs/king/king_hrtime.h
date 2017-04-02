@@ -9,5 +9,5 @@
 #include <sys/time.h>
 #include <stdlib.h>
 
-#define int64_t khrtime
+#define khrtime int64_t
 #endif // PROJECT_KING_HRTIME_H

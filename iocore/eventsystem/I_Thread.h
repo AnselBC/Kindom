@@ -8,6 +8,7 @@
 #include "king/king_platform.h"
 #include "king/king_thread.h"
 #include "king/king_memory.h"
+#include "king/king_hrtime.h"
 
 class Thread;
 // class ProxyMutex;
