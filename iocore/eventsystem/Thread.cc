@@ -43,13 +43,13 @@ static void *
 spawn_thread_internal(void *a)
 {
   thread_ctx *p = (thread_ctx *)a;
-    p->me->set_specific();
-    kset_thread_name(p->name);
-    if (p->f)
-        p->f(p->data);
-    else
-        p->me->execute();
-    kfree(a);
+  p->me->set_specific();
+  kset_thread_name(p->name);
+  if (p->f)
+    p->f(p->data);
+  else
+    p->me->execute();
+  kfree(a);
   printf("thread start %s", p->name);
   return nullptr;
 }
@@ -63,7 +63,7 @@ Thread::start(const char *name, size_t stacksize, ThreadFunction f, void *a, voi
   ctx->data = a;
   ctx->me   = this;
   memset(ctx->name, 0, MAX_THREAD_NAME_LENGTH);
-    kstrlcpy(ctx->name, name, MAX_THREAD_NAME_LENGTH);
+  kstrlcpy(ctx->name, name, MAX_THREAD_NAME_LENGTH);
 
   tid = kthread_create(spawn_thread_internal, (void *)ctx, 0, stacksize, stack);
 

@@ -7,4 +7,4 @@
 
 #define KUNUSED __attribute__((unused))
 
-#endif //PROJECT_KING_DEFS_H
+#endif // PROJECT_KING_DEFS_H

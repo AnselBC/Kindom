@@ -67,7 +67,7 @@ kthread_create(void *(*f)(void *), void *a, int detached, size_t stacksize, void
 static inline void
 kset_thread_name(const char *name KUNUSED)
 {
-    pthread_setname_np(pthread_self(), name);
+  pthread_setname_np(pthread_self(), name);
 }
 
 #endif // KINDOM_KING_THREAD_H
