@@ -10,7 +10,7 @@ Makefile.in
 *.log
 *.trs
 .*.sw*
-.idea
+.idea/
 
 .deps/
 
