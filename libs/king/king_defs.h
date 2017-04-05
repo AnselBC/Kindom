@@ -7,4 +7,6 @@
 
 #define KUNUSED __attribute__((unused))
 
+#define NUL '\0'
+
 #endif // PROJECT_KING_DEFS_H
