@@ -69,7 +69,7 @@ public:
       @note The cached copy shared among threads which means the cached copy is udpated
       for all threads if any thread updates it.
   */
-  //    static ink_hrtime get_hrtime();
+  static khrtime get_hrtime();
 
   /** Get the operating system high resolution time.
 
@@ -78,9 +78,21 @@ public:
 
       @note This also updates the cached time.
   */
-  //    static ink_hrtime get_hrtime_updated();
+  static khrtime get_hrtime_updated();
 };
 
-// extern Thread *this_thread();
+extern Thread *this_thread();
+
+inline khrtime
+Thread::get_hrtime()
+{
+  return cur_time;
+}
+
+inline khrtime
+Thread::get_hrtime_updated()
+{
+  return cur_time = kget_hrtime_internal();
+}
 
 #endif // KINDOM_I_THREAD_H
