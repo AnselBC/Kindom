@@ -37,7 +37,7 @@ inline x_pthread_mutexattr_t::x_pthread_mutexattr_t()
 extern class x_pthread_mutexattr_t _g_mattr;
 
 static inline int
-kmutex_init(kmutex *m, const char *name)
+kmutex_init(ink_mutex *m, const char *name)
 {
   (void)name;
 
@@ -54,13 +54,13 @@ kmutex_init(kmutex *m, const char *name)
 }
 
 static inline int
-kmutex_destroy(kmutex *m)
+kmutex_destroy(ink_mutex *m)
 {
   return pthread_mutex_destroy(m);
 }
 
 static inline int
-kmutex_acquire(kmutex *m)
+kmutex_acquire(ink_mutex *m)
 {
   if (pthread_mutex_lock(m) != 0) {
     abort();
@@ -69,7 +69,7 @@ kmutex_acquire(kmutex *m)
 }
 
 static inline int
-kmutex_release(kmutex *m)
+kmutex_release(ink_mutex *m)
 {
   if (pthread_mutex_unlock(m) != 0) {
     abort();
@@ -78,7 +78,7 @@ kmutex_release(kmutex *m)
 }
 
 static inline int
-kmutex_try_acquire(kmutex *m)
+kmutex_try_acquire(ink_mutex *m)
 {
   return pthread_mutex_trylock(m) == 0;
 }

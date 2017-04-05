@@ -5,13 +5,7 @@
 #ifndef PROJECT_PTR_H
 #define PROJECT_PTR_H
 
-#include "king/king_atomic.h"
-
-////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////
-//////              ATOMIC VERSIONS
-////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////
+#include "atomic/king_atomic.h"
 
 struct ForceVFPTToTop {
     virtual ~ForceVFPTToTop() {}
@@ -45,14 +39,14 @@ public:
     int
     refcount_inc()
     {
-        return ink_atomic_increment((int *)&m_refcount, 1) + 1;
+        return katomic_increment((int *)&m_refcount, 1) + 1;
     }
 
     // Decrement the reference count, returning the new count.
     int
     refcount_dec()
     {
-        return ink_atomic_increment((int *)&m_refcount, -1) - 1;
+        return katomic_increment((int *)&m_refcount, -1) - 1;
     }
 
     int
@@ -81,7 +75,6 @@ private:
 ////////////////////////////////////////////////////////////////////////
 template <class T> class Ptr
 {
-    // https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Safe_bool.
     typedef void (Ptr::*bool_type)() const;
     void
     this_type_does_not_support_comparisons() const
@@ -94,9 +87,6 @@ public:
     ~Ptr();
 
     void clear();
-    Ptr<T> &operator=(const Ptr<T> &);
-    Ptr<T> &operator=(T *);
-
     T *operator->() const { return (m_ptr); }
     T &operator*() const { return (*m_ptr); }
     operator bool_type() const { return m_ptr ? &Ptr::this_type_does_not_support_comparisons : 0; }
@@ -157,11 +147,10 @@ public:
     {
         m_ptr = ptr;
     }
-
 private:
     T *m_ptr;
 
-    friend class CoreUtils;
+//    friend class CoreUtils;
 };
 
 template <typename T>
@@ -237,5 +226,7 @@ Ptr<T>::operator=(const Ptr<T> &src)
 {
     return (operator=(src.m_ptr));
 }
+
+
 
 #endif //PROJECT_PTR_H

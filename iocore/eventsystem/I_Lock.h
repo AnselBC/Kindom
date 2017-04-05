@@ -5,41 +5,16 @@
 #ifndef PROJECT_I_LOCK_H
 #define PROJECT_I_LOCK_H
 
-
 #include "king/king_platform.h"
 #include "I_Thread.h"
+#include "king/SourceLocation.h"
+
 
 #define MAX_LOCK_TIME HRTIME_MSECONDS(200)
 #define THREAD_MUTEX_THREAD_HOLDING (-1024 * 1024)
 
-/*------------------------------------------------------*\
-|  Macros                                                |
-\*------------------------------------------------------*/
-
-/**
-  Blocks until the lock to the ProxyMutex is acquired.
-
-  This macro performs a blocking call until the lock to the ProxyMutex
-  is acquired. This call allocates a special object that holds the
-  lock to the ProxyMutex only for the scope of the function or
-  region. It is a good practice to delimit such scope explicitly
-  with '&#123;' and '&#125;'.
-
-  @param _l Arbitrary name for the lock to use in this call
-  @param _m A pointer to (or address of) a ProxyMutex object
-  @param _t The current EThread executing your code.
-
-*/
-
-#define Debug
-
-#ifdef DEBUG
 #define SCOPED_MUTEX_LOCK(_l, _m, _t) MutexLock _l(MakeSourceLocation(), nullptr, _m, _t)
-#else
-#define SCOPED_MUTEX_LOCK(_l, _m, _t) MutexLock _l(_m, _t)
-#endif // DEBUG
 
-#ifdef DEBUG
 /**
   Attempts to acquire the lock to the ProxyMutex.
 
@@ -87,11 +62,6 @@
 */
 
 #define MUTEX_TRY_LOCK_FOR(_l, _m, _t, _c) MutexTryLock _l(MakeSourceLocation(), nullptr, _m, _t)
-#else // DEBUG
-#define MUTEX_TRY_LOCK(_l, _m, _t) MutexTryLock _l(_m, _t)
-#define MUTEX_TRY_LOCK_SPIN(_l, _m, _t, _sc) MutexTryLock _l(_m, _t, _sc)
-#define MUTEX_TRY_LOCK_FOR(_l, _m, _t, _c) MutexTryLock _l(_m, _t)
-#endif // DEBUG
 
 /**
   Releases the lock on a ProxyMutex.
@@ -109,37 +79,17 @@
 
 /////////////////////////////////////
 // DEPRECATED DEPRECATED DEPRECATED
-#ifdef DEBUG
 #define MUTEX_TAKE_TRY_LOCK(_m, _t) Mutex_trylock(MakeSourceLocation(), (char *)nullptr, _m, _t)
 #define MUTEX_TAKE_TRY_LOCK_FOR(_m, _t, _c) Mutex_trylock(MakeSourceLocation(), (char *)nullptr, _m, _t)
 #define MUTEX_TAKE_TRY_LOCK_FOR_SPIN(_m, _t, _c, _sc) Mutex_trylock_spin(MakeSourceLocation(), nullptr, _m, _t, _sc)
-#else
-#define MUTEX_TAKE_TRY_LOCK(_m, _t) Mutex_trylock(_m, _t)
-#define MUTEX_TAKE_TRY_LOCK_FOR(_m, _t, _c) Mutex_trylock(_m, _t)
-#define MUTEX_TAKE_TRY_LOCK_FOR_SPIN(_m, _t, _c, _sc) Mutex_trylock_spin(_m, _t, _sc)
-#endif
 
-#ifdef DEBUG
 #define MUTEX_TAKE_LOCK(_m, _t) Mutex_lock(MakeSourceLocation(), (char *)nullptr, _m, _t)
 #define MUTEX_TAKE_LOCK_FOR(_m, _t, _c) Mutex_lock(MakeSourceLocation(), nullptr, _m, _t)
-#else
-#define MUTEX_TAKE_LOCK(_m, _t) Mutex_lock(_m, _t)
-#define MUTEX_TAKE_LOCK_FOR(_m, _t, _c) Mutex_lock(_m, _t)
-#endif // DEBUG
 
 #define MUTEX_UNTAKE_LOCK(_m, _t) Mutex_unlock(_m, _t)
 // DEPRECATED DEPRECATED DEPRECATED
 /////////////////////////////////////
 
-class EThread;
-typedef EThread *EThreadPtr;
-typedef volatile EThreadPtr VolatileEThreadPtr;
-
-#if DEBUG
-kcoreapi extern void lock_waiting(const SourceLocation &, const char *handler);
-kcoreapi extern void lock_holding(const SourceLocation &, const char *handler);
-kcoreapi extern void lock_taken(const SourceLocation &, const char *handler);
-#endif
 
 /**
   Lock object used in continuations and threads.
@@ -187,25 +137,23 @@ public:
       lock.  You must not modify or set this value directly.
 
     */
-    volatile EThreadPtr thread_holding;
+    // volatile EThreadPtr thread_holding;
 
     int nthread_holding;
 
 #ifdef DEBUG
     khrtime hold_time;
-  SourceLocation srcloc;
-  const char *handler;
+    SourceLocation srcloc;
+    const char *handler;
 
-#ifdef MAX_LOCK_TAKEN
-  int taken;
-#endif // MAX_LOCK_TAKEN
+    int taken;
 
-#ifdef LOCK_CONTENTION_PROFILING
-  int total_acquires, blocking_acquires, nonblocking_acquires, successful_nonblocking_acquires, unsuccessful_nonblocking_acquires;
-  void print_lock_stats(int flag);
-#endif // LOCK_CONTENTION_PROFILING
+    int total_acquires, blocking_acquires, nonblocking_acquires, successful_nonblocking_acquires, unsuccessful_nonblocking_acquires;
+    void print_lock_stats(int flag);
+    //end debug
 #endif // DEBUG
     void free();
+
 
     /**
       Constructor - use new_ProxyMutex() instead.
@@ -226,16 +174,16 @@ public:
         nthread_holding = 0;
 #ifdef DEBUG
         hold_time = 0;
-    handler   = nullptr;
+        handler   = nullptr;
 #ifdef MAX_LOCK_TAKEN
-    taken = 0;
+        taken = 0;
 #endif // MAX_LOCK_TAKEN
 #ifdef LOCK_CONTENTION_PROFILING
-    total_acquires                    = 0;
-    blocking_acquires                 = 0;
-    nonblocking_acquires              = 0;
-    successful_nonblocking_acquires   = 0;
-    unsuccessful_nonblocking_acquires = 0;
+        total_acquires                    = 0;
+        blocking_acquires                 = 0;
+        nonblocking_acquires              = 0;
+        successful_nonblocking_acquires   = 0;
+        unsuccessful_nonblocking_acquires = 0;
 #endif // LOCK_CONTENTION_PROFILING
 #endif // DEBUG
         // coverity[uninit_member]
@@ -254,12 +202,11 @@ public:
     void
     init(const char *name = "UnnamedMutex")
     {
-        ink_mutex_init(&the_mutex, name);
+        kmutex_init(&the_mutex, name);
     }
 };
 
-// The ClassAlocator for ProxyMutexes
-// extern kcoreapi ClassAllocator<ProxyMutex> mutexAllocator;
+// extern inkcoreapi ClassAllocator<ProxyMutex> mutexAllocator;
 
 inline bool
 Mutex_trylock(
@@ -326,7 +273,7 @@ Mutex_trylock_spin(
 #endif
         ProxyMutex *m, EThread *t, int spincnt = 1)
 {
-    ink_assert(t != 0);
+    kassert(t != 0);
     if (m->thread_holding != t) {
         int locked;
         do {
@@ -393,7 +340,7 @@ Mutex_lock(
     if (m->thread_holding != t) {
         kmutex_acquire(&m->the_mutex);
         m->thread_holding = t;
-        ink_assert(m->thread_holding);
+        kassert(m->thread_holding);
 #ifdef DEBUG
         m->srcloc    = location;
     m->handler   = ahandler;
@@ -613,12 +560,10 @@ inline void
 ProxyMutex::free()
 {
 #ifdef DEBUG
-    #ifdef LOCK_CONTENTION_PROFILING
   print_lock_stats(1);
 #endif
-#endif
     kmutex_destroy(&the_mutex);
-    kfree(this);
+    delete this;
 }
 
 // TODO should take optional mutex "name" identifier, to pass along to the init() fun
@@ -636,10 +581,9 @@ ProxyMutex::free()
 inline ProxyMutex *
 new_ProxyMutex()
 {
-    ProxyMutex *m = kmalloc(sizeof(ProxyMutex));
+    ProxyMutex *m = new ProxyMutex();
     m->init();
     return m;
 }
-
 
 #endif //PROJECT_I_LOCK_H
