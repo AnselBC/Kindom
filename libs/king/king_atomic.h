@@ -5,7 +5,6 @@
 #ifndef PROJECT_KING_ATOMIC_H
 #define PROJECT_KING_ATOMIC_H
 
-
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -42,7 +41,7 @@ template <typename T>
 static inline T
 katomic_swap(volatile T *mem, T value)
 {
-    return __sync_lock_test_and_set(mem, value);
+  return __sync_lock_test_and_set(mem, value);
 }
 
 // ink_atomic_cas(mem, prev, next)
@@ -52,7 +51,7 @@ template <typename T>
 static inline bool
 katomic_cas(volatile T *mem, T prev, T next)
 {
-    return __sync_bool_compare_and_swap(mem, prev, next);
+  return __sync_bool_compare_and_swap(mem, prev, next);
 }
 
 // ink_atomic_increment(ptr, count)
@@ -61,7 +60,7 @@ template <typename Type, typename Amount>
 static inline Type
 katomic_increment(volatile Type *mem, Amount count)
 {
-    return __sync_fetch_and_add(mem, (Type)count);
+  return __sync_fetch_and_add(mem, (Type)count);
 }
 
 // ink_atomic_decrement(ptr, count)
@@ -70,7 +69,7 @@ template <typename Type, typename Amount>
 static inline Type
 katomic_decrement(volatile Type *mem, Amount count)
 {
-    return __sync_fetch_and_sub(mem, (Type)count);
+  return __sync_fetch_and_sub(mem, (Type)count);
 }
 
 // Special hacks for ARM 32-bit
@@ -162,5 +161,4 @@ katomic_decrement(pvuint64 mem, Amount value)
 #error Need a compiler / libc that supports atomic operations, e.g. gcc v4.1.2 or later
 #endif
 
-
-#endif //PROJECT_KING_ATOMIC_H
+#endif // PROJECT_KING_ATOMIC_H

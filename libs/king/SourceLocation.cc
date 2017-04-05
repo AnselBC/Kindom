@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 // This method takes a SourceLocation source location data structure and
 // converts it to a human-readable representation, in the buffer <buf>
 // with length <buflen>.  The buffer will always be NUL-terminated, and
@@ -18,19 +17,19 @@
 char *
 SourceLocation::str(char *buf, int buflen) const
 {
-    const char *shortname;
+  const char *shortname;
 
-    if (!this->valid() || buflen < 1)
-        return (nullptr);
+  if (!this->valid() || buflen < 1)
+    return (nullptr);
 
-    shortname = strrchr(file, '/');
-    shortname = shortname ? (shortname + 1) : file;
+  shortname = strrchr(file, '/');
+  shortname = shortname ? (shortname + 1) : file;
 
-    if (func != nullptr) {
-        snprintf(buf, buflen, "%s:%d (%s)", shortname, line, func);
-    } else {
-        snprintf(buf, buflen, "%s:%d", shortname, line);
-    }
-    buf[buflen - 1] = NUL;
-    return (buf);
+  if (func != nullptr) {
+    snprintf(buf, buflen, "%s:%d (%s)", shortname, line, func);
+  } else {
+    snprintf(buf, buflen, "%s:%d", shortname, line);
+  }
+  buf[buflen - 1] = NUL;
+  return (buf);
 }

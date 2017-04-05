@@ -5,19 +5,17 @@
 #ifndef PROJECT_KING_MUTEX_H
 #define PROJECT_KING_MUTEX_H
 
-
 #include <stdio.h>
 
 #include "king/king_defs.h"
 
-#if defined(POSIX_THREAD)
 #include <pthread.h>
 #include <stdlib.h>
 
 typedef pthread_mutex_t kmutex;
 
 // just a wrapper so that the constructor gets executed
-// before the first call to ink_mutex_init();
+// before the first call to kmutex_init();
 class x_pthread_mutexattr_t
 {
 public:
@@ -37,7 +35,7 @@ inline x_pthread_mutexattr_t::x_pthread_mutexattr_t()
 extern class x_pthread_mutexattr_t _g_mattr;
 
 static inline int
-kmutex_init(ink_mutex *m, const char *name)
+kmutex_init(kmutex *m, const char *name)
 {
   (void)name;
 
@@ -54,13 +52,13 @@ kmutex_init(ink_mutex *m, const char *name)
 }
 
 static inline int
-kmutex_destroy(ink_mutex *m)
+kmutex_destroy(kmutex *m)
 {
   return pthread_mutex_destroy(m);
 }
 
 static inline int
-kmutex_acquire(ink_mutex *m)
+kmutex_acquire(kmutex *m)
 {
   if (pthread_mutex_lock(m) != 0) {
     abort();
@@ -69,7 +67,7 @@ kmutex_acquire(ink_mutex *m)
 }
 
 static inline int
-kmutex_release(ink_mutex *m)
+kmutex_release(kmutex *m)
 {
   if (pthread_mutex_unlock(m) != 0) {
     abort();
@@ -78,10 +76,9 @@ kmutex_release(ink_mutex *m)
 }
 
 static inline int
-kmutex_try_acquire(ink_mutex *m)
+kmutex_try_acquire(kmutex *m)
 {
   return pthread_mutex_trylock(m) == 0;
 }
 
-#endif /* #if defined(POSIX_THREAD) */
-#endif //PROJECT_KING_MUTEX_H
+#endif // PROJECT_KING_MUTEX_H

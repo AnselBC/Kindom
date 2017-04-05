@@ -5,16 +5,22 @@
 #ifndef PROJECT_I_LOCK_H
 #define PROJECT_I_LOCK_H
 
+#include "P_EventSystem.h"
 #include "king/king_platform.h"
-#include "I_Thread.h"
 #include "king/SourceLocation.h"
-
+#include "king/Ptr.h"
+#include "king/king_mutex.h"
 
 #define MAX_LOCK_TIME HRTIME_MSECONDS(200)
 #define THREAD_MUTEX_THREAD_HOLDING (-1024 * 1024)
 
+#ifdef DEBUG
 #define SCOPED_MUTEX_LOCK(_l, _m, _t) MutexLock _l(MakeSourceLocation(), nullptr, _m, _t)
+#else
+#define SCOPED_MUTEX_LOCK(_l, _m, _t) MutexLock _l(_m, _t)
+#endif // DEBUG
 
+#ifdef DEBUG
 /**
   Attempts to acquire the lock to the ProxyMutex.
 
@@ -62,6 +68,11 @@
 */
 
 #define MUTEX_TRY_LOCK_FOR(_l, _m, _t, _c) MutexTryLock _l(MakeSourceLocation(), nullptr, _m, _t)
+#else // DEBUG
+#define MUTEX_TRY_LOCK(_l, _m, _t) MutexTryLock _l(_m, _t)
+#define MUTEX_TRY_LOCK_SPIN(_l, _m, _t, _sc) MutexTryLock _l(_m, _t, _sc)
+#define MUTEX_TRY_LOCK_FOR(_l, _m, _t, _c) MutexTryLock _l(_m, _t)
+#endif // DEBUG
 
 /**
   Releases the lock on a ProxyMutex.
@@ -79,17 +90,37 @@
 
 /////////////////////////////////////
 // DEPRECATED DEPRECATED DEPRECATED
+#ifdef DEBUG
 #define MUTEX_TAKE_TRY_LOCK(_m, _t) Mutex_trylock(MakeSourceLocation(), (char *)nullptr, _m, _t)
 #define MUTEX_TAKE_TRY_LOCK_FOR(_m, _t, _c) Mutex_trylock(MakeSourceLocation(), (char *)nullptr, _m, _t)
 #define MUTEX_TAKE_TRY_LOCK_FOR_SPIN(_m, _t, _c, _sc) Mutex_trylock_spin(MakeSourceLocation(), nullptr, _m, _t, _sc)
+#else
+#define MUTEX_TAKE_TRY_LOCK(_m, _t) Mutex_trylock(_m, _t)
+#define MUTEX_TAKE_TRY_LOCK_FOR(_m, _t, _c) Mutex_trylock(_m, _t)
+#define MUTEX_TAKE_TRY_LOCK_FOR_SPIN(_m, _t, _c, _sc) Mutex_trylock_spin(_m, _t, _sc)
+#endif
 
+#ifdef DEBUG
 #define MUTEX_TAKE_LOCK(_m, _t) Mutex_lock(MakeSourceLocation(), (char *)nullptr, _m, _t)
 #define MUTEX_TAKE_LOCK_FOR(_m, _t, _c) Mutex_lock(MakeSourceLocation(), nullptr, _m, _t)
+#else
+#define MUTEX_TAKE_LOCK(_m, _t) Mutex_lock(_m, _t)
+#define MUTEX_TAKE_LOCK_FOR(_m, _t, _c) Mutex_lock(_m, _t)
+#endif // DEBUG
 
 #define MUTEX_UNTAKE_LOCK(_m, _t) Mutex_unlock(_m, _t)
 // DEPRECATED DEPRECATED DEPRECATED
 /////////////////////////////////////
 
+class EThread;
+typedef EThread *EThreadPtr;
+typedef volatile EThreadPtr VolatileEThreadPtr;
+
+#if DEBUG
+kcoreapi extern void lock_waiting(const SourceLocation &, const char *handler);
+kcoreapi extern void lock_holding(const SourceLocation &, const char *handler);
+kcoreapi extern void lock_taken(const SourceLocation &, const char *handler);
+#endif
 
 /**
   Lock object used in continuations and threads.
@@ -120,90 +151,85 @@
 class ProxyMutex : public RefCountObj
 {
 public:
-    /**
-      Underlying mutex object.
+  /**
+    Underlying mutex object.
 
-      The platform independent mutex for the ProxyMutex class. You
-      must not modify or set it directly.
+    The platform independent mutex for the ProxyMutex class. You
+    must not modify or set it directly.
 
-    */
-    // coverity[uninit_member]
-    kmutex the_mutex;
+  */
+  // coverity[uninit_member]
+  kmutex the_mutex;
 
-    /**
-      Backpointer to owning thread.
+  /**
+    Backpointer to owning thread.
 
-      This is a pointer to the thread currently holding the mutex
-      lock.  You must not modify or set this value directly.
+    This is a pointer to the thread currently holding the mutex
+    lock.  You must not modify or set this value directly.
 
-    */
-    // volatile EThreadPtr thread_holding;
+  */
+  volatile EThreadPtr thread_holding;
 
-    int nthread_holding;
+  int nthread_holding;
 
 #ifdef DEBUG
-    khrtime hold_time;
-    SourceLocation srcloc;
-    const char *handler;
+  khrtime hold_time;
+  SourceLocation srcloc;
+  const char *handler;
 
-    int taken;
+  int taken;
 
-    int total_acquires, blocking_acquires, nonblocking_acquires, successful_nonblocking_acquires, unsuccessful_nonblocking_acquires;
-    void print_lock_stats(int flag);
-    //end debug
+  int total_acquires, blocking_acquires, nonblocking_acquires, successful_nonblocking_acquires, unsuccessful_nonblocking_acquires;
+// void print_lock_stats(int flag);
+// end debug
 #endif // DEBUG
-    void free();
+  void free();
 
+  /**
+    Constructor - use new_ProxyMutex() instead.
 
-    /**
-      Constructor - use new_ProxyMutex() instead.
+    The constructor of a ProxyMutex object. Initializes the state
+    of the object but leaves the initialization of the mutex member
+    until it is needed (through init()). Do not use this constructor,
+    the preferred mechanism for creating a ProxyMutex is via the
+    new_ProxyMutex function, which provides a faster allocation.
 
-      The constructor of a ProxyMutex object. Initializes the state
-      of the object but leaves the initialization of the mutex member
-      until it is needed (through init()). Do not use this constructor,
-      the preferred mechanism for creating a ProxyMutex is via the
-      new_ProxyMutex function, which provides a faster allocation.
-
-    */
-    ProxyMutex()
+  */
+  ProxyMutex()
 #ifdef DEBUG
     : srcloc(nullptr, nullptr, 0)
 #endif
-    {
-        thread_holding  = nullptr;
-        nthread_holding = 0;
+  {
+    // thread_holding  = nullptr;
+    nthread_holding = 0;
 #ifdef DEBUG
-        hold_time = 0;
-        handler   = nullptr;
-#ifdef MAX_LOCK_TAKEN
-        taken = 0;
-#endif // MAX_LOCK_TAKEN
-#ifdef LOCK_CONTENTION_PROFILING
-        total_acquires                    = 0;
-        blocking_acquires                 = 0;
-        nonblocking_acquires              = 0;
-        successful_nonblocking_acquires   = 0;
-        unsuccessful_nonblocking_acquires = 0;
-#endif // LOCK_CONTENTION_PROFILING
+    hold_time                         = 0;
+    handler                           = nullptr;
+    taken                             = 0;
+    total_acquires                    = 0;
+    blocking_acquires                 = 0;
+    nonblocking_acquires              = 0;
+    successful_nonblocking_acquires   = 0;
+    unsuccessful_nonblocking_acquires = 0;
 #endif // DEBUG
-        // coverity[uninit_member]
-    }
+       // coverity[uninit_member]
+  }
 
-    /**
-      Initializes the underlying mutex object.
+  /**
+    Initializes the underlying mutex object.
 
-      After constructing your ProxyMutex object, use this function
-      to initialize the underlying mutex object with an optional name.
+    After constructing your ProxyMutex object, use this function
+    to initialize the underlying mutex object with an optional name.
 
-      @param name Name to identify this ProxyMutex. Its use depends
-        on the given platform.
+    @param name Name to identify this ProxyMutex. Its use depends
+      on the given platform.
 
-    */
-    void
-    init(const char *name = "UnnamedMutex")
-    {
-        kmutex_init(&the_mutex, name);
-    }
+  */
+  void
+  init(const char *name = "UnnamedMutex")
+  {
+    kmutex_init(&the_mutex, name);
+  }
 };
 
 // extern inkcoreapi ClassAllocator<ProxyMutex> mutexAllocator;
@@ -211,180 +237,180 @@ public:
 inline bool
 Mutex_trylock(
 #ifdef DEBUG
-        const SourceLocation &location, const char *ahandler,
+  const SourceLocation &location, const char *ahandler,
 #endif
-        ProxyMutex *m, EThread *t)
+  ProxyMutex *m, EThread *t)
 {
-    kassert(t != 0);
-    kassert(t == (EThread *)this_thread());
-    if (m->thread_holding != t) {
-        if (!kmutex_try_acquire(&m->the_mutex)) {
+  kassert(t != 0);
+  kassert(t == (EThread *)this_thread());
+  if (m->thread_holding != t) {
+    if (!kmutex_try_acquire(&m->the_mutex)) {
 #ifdef DEBUG
-            lock_waiting(m->srcloc, m->handler);
+// lock_waiting(m->srcloc, m->handler);
 #ifdef LOCK_CONTENTION_PROFILING
       m->unsuccessful_nonblocking_acquires++;
       m->nonblocking_acquires++;
       m->total_acquires++;
-      m->print_lock_stats(0);
+// m->print_lock_stats(0);
 #endif // LOCK_CONTENTION_PROFILING
 #endif // DEBUG
-            return false;
-        }
-        m->thread_holding = t;
+      return false;
+    }
+    m->thread_holding = t;
 #ifdef DEBUG
-        m->srcloc    = location;
-    m->handler   = ahandler;
-    m->hold_time = Thread::get_hrtime();
+    m->srcloc  = location;
+    m->handler = ahandler;
+// m->hold_time = Thread::get_hrtime();
 #ifdef MAX_LOCK_TAKEN
     m->taken++;
 #endif // MAX_LOCK_TAKEN
 #endif // DEBUG
-    }
+  }
 #ifdef DEBUG
-    #ifdef LOCK_CONTENTION_PROFILING
+#ifdef LOCK_CONTENTION_PROFILING
   m->successful_nonblocking_acquires++;
   m->nonblocking_acquires++;
   m->total_acquires++;
-  m->print_lock_stats(0);
+// m->print_lock_stats(0);
 #endif // LOCK_CONTENTION_PROFILING
 #endif // DEBUG
-    m->nthread_holding++;
-    return true;
+  m->nthread_holding++;
+  return true;
 }
 
 inline bool
 Mutex_trylock(
 #ifdef DEBUG
-        const SourceLocation &location, const char *ahandler,
+  const SourceLocation &location, const char *ahandler,
 #endif
-        Ptr<ProxyMutex> &m, EThread *t)
+  Ptr<ProxyMutex> &m, EThread *t)
 {
-    return Mutex_trylock(
+  return Mutex_trylock(
 #ifdef DEBUG
-            location, ahandler,
+    location, ahandler,
 #endif
-            m.get(), t);
+    m.get(), t);
 }
 
 inline bool
 Mutex_trylock_spin(
 #ifdef DEBUG
-        const SourceLocation &location, const char *ahandler,
+  const SourceLocation &location, const char *ahandler,
 #endif
-        ProxyMutex *m, EThread *t, int spincnt = 1)
+  ProxyMutex *m, EThread *t, int spincnt = 1)
 {
-    kassert(t != 0);
-    if (m->thread_holding != t) {
-        int locked;
-        do {
-            if ((locked = kmutex_try_acquire(&m->the_mutex)))
-                break;
-        } while (--spincnt);
-        if (!locked) {
+  kassert(t != 0);
+  if (m->thread_holding != t) {
+    int locked;
+    do {
+      if ((locked = kmutex_try_acquire(&m->the_mutex)))
+        break;
+    } while (--spincnt);
+    if (!locked) {
 #ifdef DEBUG
-            lock_waiting(m->srcloc, m->handler);
+// lock_waiting(m->srcloc, m->handler);
 #ifdef LOCK_CONTENTION_PROFILING
       m->unsuccessful_nonblocking_acquires++;
       m->nonblocking_acquires++;
       m->total_acquires++;
-      m->print_lock_stats(0);
+// m->print_lock_stats(0);
 #endif // LOCK_CONTENTION_PROFILING
 #endif // DEBUG
-            return false;
-        }
-        m->thread_holding = t;
-        kassert(m->thread_holding);
+      return false;
+    }
+    m->thread_holding = t;
+    kassert(m->thread_holding);
 #ifdef DEBUG
-        m->srcloc    = location;
-    m->handler   = ahandler;
-    m->hold_time = Thread::get_hrtime();
+    m->srcloc  = location;
+    m->handler = ahandler;
+// m->hold_time = Thread::get_hrtime();
 #ifdef MAX_LOCK_TAKEN
     m->taken++;
 #endif // MAX_LOCK_TAKEN
 #endif // DEBUG
-    }
+  }
 #ifdef DEBUG
-    #ifdef LOCK_CONTENTION_PROFILING
+#ifdef LOCK_CONTENTION_PROFILING
   m->successful_nonblocking_acquires++;
   m->nonblocking_acquires++;
   m->total_acquires++;
-  m->print_lock_stats(0);
+// m->print_lock_stats(0);
 #endif // LOCK_CONTENTION_PROFILING
 #endif // DEBUG
-    m->nthread_holding++;
-    return true;
+  m->nthread_holding++;
+  return true;
 }
 
 inline bool
 Mutex_trylock_spin(
 #ifdef DEBUG
-        const SourceLocation &location, const char *ahandler,
+  const SourceLocation &location, const char *ahandler,
 #endif
-        Ptr<ProxyMutex> &m, EThread *t, int spincnt = 1)
+  Ptr<ProxyMutex> &m, EThread *t, int spincnt = 1)
 {
-    return Mutex_trylock_spin(
+  return Mutex_trylock_spin(
 #ifdef DEBUG
-            location, ahandler,
+    location, ahandler,
 #endif
-            m.get(), t, spincnt);
+    m.get(), t, spincnt);
 }
 
 inline int
 Mutex_lock(
 #ifdef DEBUG
-        const SourceLocation &location, const char *ahandler,
+  const SourceLocation &location, const char *ahandler,
 #endif
-        ProxyMutex *m, EThread *t)
+  ProxyMutex *m, EThread *t)
 {
-    kassert(t != 0);
-    if (m->thread_holding != t) {
-        kmutex_acquire(&m->the_mutex);
-        m->thread_holding = t;
-        kassert(m->thread_holding);
+  kassert(t != 0);
+  if (m->thread_holding != t) {
+    kmutex_acquire(&m->the_mutex);
+    m->thread_holding = t;
+    kassert(m->thread_holding);
 #ifdef DEBUG
-        m->srcloc    = location;
-    m->handler   = ahandler;
-    m->hold_time = Thread::get_hrtime();
+    m->srcloc  = location;
+    m->handler = ahandler;
+// m->hold_time = Thread::get_hrtime();
 #ifdef MAX_LOCK_TAKEN
     m->taken++;
 #endif // MAX_LOCK_TAKEN
 #endif // DEBUG
-    }
+  }
 #ifdef DEBUG
-    #ifdef LOCK_CONTENTION_PROFILING
+#ifdef LOCK_CONTENTION_PROFILING
   m->blocking_acquires++;
   m->total_acquires++;
-  m->print_lock_stats(0);
+// m->print_lock_stats(0);
 #endif // LOCK_CONTENTION_PROFILING
 #endif // DEBUG
-    m->nthread_holding++;
-    return true;
+  m->nthread_holding++;
+  return true;
 }
 
 inline int
 Mutex_lock(
 #ifdef DEBUG
-        const SourceLocation &location, const char *ahandler,
+  const SourceLocation &location, const char *ahandler,
 #endif
-        Ptr<ProxyMutex> &m, EThread *t)
+  Ptr<ProxyMutex> &m, EThread *t)
 {
-    return Mutex_lock(
+  return Mutex_lock(
 #ifdef DEBUG
-            location, ahandler,
+    location, ahandler,
 #endif
-            m.get(), t);
+    m.get(), t);
 }
 
 inline void
 Mutex_unlock(ProxyMutex *m, EThread *t)
 {
-    if (m->nthread_holding) {
-        kassert(t == m->thread_holding);
-        m->nthread_holding--;
-        if (!m->nthread_holding) {
+  if (m->nthread_holding) {
+    kassert(t == m->thread_holding);
+    m->nthread_holding--;
+    if (!m->nthread_holding) {
 #ifdef DEBUG
-            if (Thread::get_hrtime() - m->hold_time > MAX_LOCK_TIME)
-        lock_holding(m->srcloc, m->handler);
+//  if (Thread::get_hrtime() - m->hold_time > MAX_LOCK_TIME)
+// lock_holding(m->srcloc, m->handler);
 #ifdef MAX_LOCK_TAKEN
       if (m->taken > MAX_LOCK_TAKEN)
         lock_taken(m->srcloc, m->handler);
@@ -392,17 +418,17 @@ Mutex_unlock(ProxyMutex *m, EThread *t)
       m->srcloc  = SourceLocation(nullptr, nullptr, 0);
       m->handler = nullptr;
 #endif // DEBUG
-            kassert(m->thread_holding);
-            m->thread_holding = 0;
-            kmutex_release(&m->the_mutex);
-        }
+      kassert(m->thread_holding);
+      m->thread_holding = 0;
+      kmutex_release(&m->the_mutex);
     }
+  }
 }
 
 inline void
 Mutex_unlock(Ptr<ProxyMutex> &m, EThread *t)
 {
-    Mutex_unlock(m.get(), t);
+  Mutex_unlock(m.get(), t);
 }
 
 /** Scoped lock class for ProxyMutex
@@ -410,47 +436,47 @@ Mutex_unlock(Ptr<ProxyMutex> &m, EThread *t)
 class MutexLock
 {
 private:
-    Ptr<ProxyMutex> m;
-    bool locked_p;
+  Ptr<ProxyMutex> m;
+  bool locked_p;
 
 public:
-    MutexLock(
+  MutexLock(
 #ifdef DEBUG
-            const SourceLocation &location, const char *ahandler,
+    const SourceLocation &location, const char *ahandler,
 #endif // DEBUG
-            ProxyMutex *am, EThread *t)
-            : m(am), locked_p(true)
-    {
-        Mutex_lock(
+    ProxyMutex *am, EThread *t)
+    : m(am), locked_p(true)
+  {
+    Mutex_lock(
 #ifdef DEBUG
-                location, ahandler,
+      location, ahandler,
 #endif // DEBUG
-                m.get(), t);
-    }
+      m.get(), t);
+  }
 
-    MutexLock(
+  MutexLock(
 #ifdef DEBUG
-            const SourceLocation &location, const char *ahandler,
+    const SourceLocation &location, const char *ahandler,
 #endif // DEBUG
-            Ptr<ProxyMutex> &am, EThread *t)
-            : m(am), locked_p(true)
-    {
-        Mutex_lock(
+    Ptr<ProxyMutex> &am, EThread *t)
+    : m(am), locked_p(true)
+  {
+    Mutex_lock(
 #ifdef DEBUG
-                location, ahandler,
+      location, ahandler,
 #endif // DEBUG
-                m.get(), t);
-    }
+      m.get(), t);
+  }
 
-    void
-    release()
-    {
-        if (locked_p)
-            Mutex_unlock(m, m->thread_holding);
-        locked_p = false;
-    }
+  void
+  release()
+  {
+    if (locked_p)
+      Mutex_unlock(m, m->thread_holding);
+    locked_p = false;
+  }
 
-    ~MutexLock() { this->release(); }
+  ~MutexLock() { this->release(); }
 };
 
 /** Scoped try lock class for ProxyMutex
@@ -458,112 +484,112 @@ public:
 class MutexTryLock
 {
 private:
-    Ptr<ProxyMutex> m;
-    bool lock_acquired;
+  Ptr<ProxyMutex> m;
+  bool lock_acquired;
 
 public:
-    MutexTryLock(
+  MutexTryLock(
 #ifdef DEBUG
-            const SourceLocation &location, const char *ahandler,
+    const SourceLocation &location, const char *ahandler,
 #endif // DEBUG
-            ProxyMutex *am, EThread *t)
-            : m(am)
-    {
-        lock_acquired = Mutex_trylock(
+    ProxyMutex *am, EThread *t)
+    : m(am)
+  {
+    lock_acquired = Mutex_trylock(
 #ifdef DEBUG
-                location, ahandler,
+      location, ahandler,
 #endif // DEBUG
-                m.get(), t);
-    }
+      m.get(), t);
+  }
 
-    MutexTryLock(
+  MutexTryLock(
 #ifdef DEBUG
-            const SourceLocation &location, const char *ahandler,
+    const SourceLocation &location, const char *ahandler,
 #endif // DEBUG
-            Ptr<ProxyMutex> &am, EThread *t)
-            : m(am)
-    {
-        lock_acquired = Mutex_trylock(
+    Ptr<ProxyMutex> &am, EThread *t)
+    : m(am)
+  {
+    lock_acquired = Mutex_trylock(
 #ifdef DEBUG
-                location, ahandler,
+      location, ahandler,
 #endif // DEBUG
-                m.get(), t);
-    }
+      m.get(), t);
+  }
 
-    MutexTryLock(
+  MutexTryLock(
 #ifdef DEBUG
-            const SourceLocation &location, const char *ahandler,
+    const SourceLocation &location, const char *ahandler,
 #endif // DEBUG
-            ProxyMutex *am, EThread *t, int sp)
-            : m(am)
-    {
-        lock_acquired = Mutex_trylock_spin(
+    ProxyMutex *am, EThread *t, int sp)
+    : m(am)
+  {
+    lock_acquired = Mutex_trylock_spin(
 #ifdef DEBUG
-                location, ahandler,
+      location, ahandler,
 #endif // DEBUG
-                m.get(), t, sp);
-    }
+      m.get(), t, sp);
+  }
 
-    MutexTryLock(
+  MutexTryLock(
 #ifdef DEBUG
-            const SourceLocation &location, const char *ahandler,
+    const SourceLocation &location, const char *ahandler,
 #endif // DEBUG
-            Ptr<ProxyMutex> &am, EThread *t, int sp)
-            : m(am)
-    {
-        lock_acquired = Mutex_trylock_spin(
+    Ptr<ProxyMutex> &am, EThread *t, int sp)
+    : m(am)
+  {
+    lock_acquired = Mutex_trylock_spin(
 #ifdef DEBUG
-                location, ahandler,
+      location, ahandler,
 #endif // DEBUG
-                m.get(), t, sp);
-    }
+      m.get(), t, sp);
+  }
 
-    ~MutexTryLock()
-    {
-        if (lock_acquired)
-            Mutex_unlock(m.get(), m->thread_holding);
-    }
+  ~MutexTryLock()
+  {
+    if (lock_acquired)
+      Mutex_unlock(m.get(), m->thread_holding);
+  }
 
-    /** Spin till lock is acquired
-     */
-    void
-    acquire(EThread *t)
-    {
-        MUTEX_TAKE_LOCK(m.get(), t);
-        lock_acquired = true;
-    }
+  /** Spin till lock is acquired
+   */
+  void
+  acquire(EThread *t)
+  {
+    MUTEX_TAKE_LOCK(m.get(), t);
+    lock_acquired = true;
+  }
 
-    void
-    release()
-    {
-        kassert(lock_acquired); // generate a warning because it shouldn't be done.
-        if (lock_acquired) {
-            Mutex_unlock(m.get(), m->thread_holding);
-        }
-        lock_acquired = false;
+  void
+  release()
+  {
+    kassert(lock_acquired); // generate a warning because it shouldn't be done.
+    if (lock_acquired) {
+      Mutex_unlock(m.get(), m->thread_holding);
     }
+    lock_acquired = false;
+  }
 
-    bool
-    is_locked() const
-    {
-        return lock_acquired;
-    }
+  bool
+  is_locked() const
+  {
+    return lock_acquired;
+  }
 
-    const ProxyMutex *
-    get_mutex() const
-    {
-        return m.get();
-    }
+  const ProxyMutex *
+  get_mutex() const
+  {
+    return m.get();
+  }
 };
 
 inline void
 ProxyMutex::free()
 {
 #ifdef DEBUG
-  print_lock_stats(1);
+// print_lock_stats(1);
 #endif
-    kmutex_destroy(&the_mutex);
-    delete this;
+  kmutex_destroy(&the_mutex);
+  delete this;
 }
 
 // TODO should take optional mutex "name" identifier, to pass along to the init() fun
@@ -581,9 +607,9 @@ ProxyMutex::free()
 inline ProxyMutex *
 new_ProxyMutex()
 {
-    ProxyMutex *m = new ProxyMutex();
-    m->init();
-    return m;
+  ProxyMutex *m = new ProxyMutex();
+  m->init();
+  return m;
 }
 
-#endif //PROJECT_I_LOCK_H
+#endif // PROJECT_I_LOCK_H

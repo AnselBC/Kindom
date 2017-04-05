@@ -3,10 +3,8 @@
 
 #include "I_Lock.h"
 
-
 int
 main()
 {
-	ProxyMutex *mutex = new_ProxyMutex();
-		
+  ProxyMutex *mutex = new_ProxyMutex();
 }

@@ -10,4 +10,6 @@
 #include <string.h>
 #include <syslog.h>
 
+#define DEBUG 0
+
 #endif // KINDOM_KING_PLATFORM_H
