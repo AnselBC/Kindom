@@ -5,13 +5,14 @@
 #ifndef KINDOM_I_THREAD_H
 #define KINDOM_I_THREAD_H
 
+#include "king/Ptr.h"
 #include "king/king_platform.h"
 #include "king/king_thread.h"
 #include "king/king_memory.h"
 #include "king/king_hrtime.h"
 
 class Thread;
-// class ProxyMutex;
+class ProxyMutex;
 typedef void *(*ThreadFunction)(void *arg);
 
 static const int MAX_THREAD_NAME_LENGTH = 16;
@@ -39,7 +40,7 @@ public:
     regions. Do not modify this member directly.
 
   */
-  //    Ptr<ProxyMutex> mutex;
+  Ptr<ProxyMutex> mutex;
 
   // PRIVATE
   void set_specific();

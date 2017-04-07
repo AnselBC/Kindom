@@ -21,9 +21,9 @@ kcoreapi kthread_key Thread::thread_data_key = init_thread_key();
 
 Thread::Thread()
 {
-  //   mutex = new_ProxyMutex();
-  //   MUTEX_TAKE_LOCK(mutex, (EThread *)this);
-  //   mutex->nthread_holding = THREAD_MUTEX_THREAD_HOLDING;
+  mutex = new_ProxyMutex();
+  MUTEX_TAKE_LOCK(mutex, (EThread *)this);
+  mutex->nthread_holding = THREAD_MUTEX_THREAD_HOLDING;
 }
 
 static void
