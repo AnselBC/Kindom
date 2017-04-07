@@ -50,7 +50,6 @@ spawn_thread_internal(void *a)
   else
     p->me->execute();
   kfree(a);
-  printf("thread start %s", p->name);
   return nullptr;
 }
 
