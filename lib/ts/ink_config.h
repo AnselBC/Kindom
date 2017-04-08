@@ -83,7 +83,7 @@
 
 /* OS API definitions */
 #define TS_IP_TRANSPARENT 0
-#define TS_HAS_128BIT_CAS 1
+#define TS_HAS_128BIT_CAS 0 
 
 /* API */
 #define TS_HAS_TESTS 1
