@@ -1,4 +1,6 @@
- brief file description
+/** @file
+
+  A brief file description
 
   @section license License
 

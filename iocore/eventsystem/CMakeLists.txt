@@ -2,7 +2,7 @@ PROJECT(test_lock)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lpcre -g -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lpcre -g -O0 -Wno-invalid-offsetof ")
 SET(CMAKE_SOURCE_DIR .)
 
 
@@ -17,13 +17,22 @@ Lock.cc
 Thread.cc
 ProxyAllocator.cc
 IOBuffer.cc
+ProtectedQueue.cc
+PQ-List.cc
+Processor.cc
+UnixEventProcessor.cc
+UnixEThread.cc
+UnixEvent.cc
+EventSystem.cc
 )
 
+
+target_link_libraries(tseventsystem tsutil pcre dl)
 AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 
 add_executable(test_lock.out lock_test.cc)
 add_executable(test_thread.out thread_test.cc)
 add_executable(test_buffer.out buffer_test.cc)
-target_link_libraries(test_lock.out tseventsystem tsutil pcre dl)
-target_link_libraries(test_thread.out tseventsystem tsutil pcre dl)
-target_link_libraries(test_buffer.out tseventsystem tsutil pcre dl)
+target_link_libraries(test_lock.out tseventsystem)
+target_link_libraries(test_thread.out tseventsystem)
+target_link_libraries(test_buffer.out tseventsystem)

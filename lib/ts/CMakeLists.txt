@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++11 -pthread -lpcre -ldl")
+set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++11 -pthread -lpcre -ldl -Wno-invalid-offsetof ")
 INCLUDE_DIRECTORIES(../)
 aux_source_directory(. DIR_SRCS)
 add_library(tsutil SHARED
@@ -20,6 +20,7 @@ SourceLocation.cc
 ink_queue.cc
 ink_resource.cc
 hugepages.cc
+ink_rand.cc
 )
 
 target_link_libraries(tsutil) 

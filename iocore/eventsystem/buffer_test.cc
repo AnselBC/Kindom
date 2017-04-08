@@ -21,6 +21,7 @@
   limitations under the License.
  */
 
+#include "I_EventSystem.h"
 #include "P_EventSystem.h"
 #include "ts/I_Layout.h"
 #include "ts/ink_string.h"
@@ -40,10 +41,10 @@ main(int /* argc ATS_UNUSED */, const char * /* argv ATS_UNUSED */ [])
 //  RecProcessInit(mode_type);
 
 //  ink_event_system_init(EVENT_SYSTEM_MODULE_VERSION);
-//  eventProcessor.start(TEST_THREADS);
+  eventProcessor.start(TEST_THREADS);
 
-//  Thread *main_thread = new EThread;
-//  main_thread->set_specific();
+  Thread *main_thread = new EThread;
+/*  main_thread->set_specific();
 
   for (unsigned i = 0; i < 100; ++i) {
     MIOBuffer *b1                       = new_MIOBuffer(default_large_iobuffer_size);
@@ -58,7 +59,7 @@ main(int /* argc ATS_UNUSED */, const char * /* argv ATS_UNUSED */ [])
 
     free_MIOBuffer(b2);
     free_MIOBuffer(b1);
-  }
+  }*/
 
   exit(0);
 }

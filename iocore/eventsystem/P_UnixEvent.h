@@ -1,6 +1,6 @@
 /** @file
 
-  Event subsystem
+  A brief file description
 
   @section license License
 
@@ -19,36 +19,41 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-
  */
 
-#ifndef _I_EventSystem_h
-#define _I_EventSystem_h
+#ifndef _P_UnixEvent_h_
+#define _P_UnixEvent_h_
 
-#include "ts/ink_platform.h"
+TS_INLINE Event *
+Event::init(Continuation *c, ink_hrtime atimeout_at, ink_hrtime aperiod)
+{
+  continuation = c;
+  timeout_at   = atimeout_at;
+  period       = aperiod;
+  immediate    = !period && !atimeout_at;
+  cancelled    = false;
+  return this;
+}
 
-#include "I_IOBuffer.h"
-#include "I_Action.h"
-#include "I_Continuation.h"
-#include "I_EThread.h"
-#include "I_Event.h"
-#include "I_EventProcessor.h"
+TS_INLINE void
+Event::free()
+{
+  mutex = nullptr;
+  eventAllocator.free(this);
+}
 
-#include "I_Lock.h"
-#include "I_PriorityEventQueue.h"
-#include "I_Processor.h"
-#include "I_ProtectedQueue.h"
-#include "I_Thread.h"
-// #include "I_VIO.h"
-// #include "I_VConnection.h"
-// #include "I_RecProcess.h"
-// #include "I_SocketManager.h"
+TS_INLINE
+Event::Event()
+  : ethread(0),
+    in_the_prot_queue(false),
+    in_the_priority_queue(false),
+    immediate(false),
+    globally_allocated(true),
+    in_heap(false),
+    timeout_at(0),
+    period(0)
+{
+}
 
-#define EVENT_SYSTEM_MODULE_MAJOR_VERSION 1
-#define EVENT_SYSTEM_MODULE_MINOR_VERSION 0
-#define EVENT_SYSTEM_MODULE_VERSION \
-  makeModuleVersion(EVENT_SYSTEM_MODULE_MAJOR_VERSION, EVENT_SYSTEM_MODULE_MINOR_VERSION, PUBLIC_MODULE_HEADER)
+#endif /*_UnixEvent_h_*/
 
-void ink_event_system_init(ModuleVersion version);
-
-#endif
