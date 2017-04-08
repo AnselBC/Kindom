@@ -11,9 +11,11 @@ Makefile.in
 *.trs
 .*.sw*
 .idea/
-CMakeCache.txt
 *.cmake
+*.out
+
 CMakeFiles/
+CMakeCache.txt
 
 .deps/
 

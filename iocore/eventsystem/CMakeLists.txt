@@ -2,7 +2,7 @@ PROJECT(test_lock)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lpcre -lgcc")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lpcre -g -O0")
 SET(CMAKE_SOURCE_DIR .)
 
 
@@ -20,3 +20,6 @@ ProxyAllocator.cc
 
 AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 
+add_executable(test_lock.out lock_test.cc)
+
+target_link_libraries(test_lock.out tseventsystem tsutil pcre dl)
