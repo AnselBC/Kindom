@@ -16,10 +16,14 @@ IOBuffer.cc
 Lock.cc
 Thread.cc
 ProxyAllocator.cc
+IOBuffer.cc
 )
 
 AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 
 add_executable(test_lock.out lock_test.cc)
-
+add_executable(test_thread.out thread_test.cc)
+add_executable(test_buffer.out buffer_test.cc)
 target_link_libraries(test_lock.out tseventsystem tsutil pcre dl)
+target_link_libraries(test_thread.out tseventsystem tsutil pcre dl)
+target_link_libraries(test_buffer.out tseventsystem tsutil pcre dl)

@@ -10,6 +10,7 @@ ink_memory.cc
 ink_assert.cc
 ink_error.cc 
 ink_time.cc
+ink_hrtime.cc
 ink_cap.cc
 ink_file.cc
 ink_string.cc
