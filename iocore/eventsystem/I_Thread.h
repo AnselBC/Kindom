@@ -60,7 +60,8 @@
 #define _I_Thread_h
 
 #if !defined(_I_EventSystem_h) && !defined(_P_EventSystem_h)
-#error "include I_EventSystem.h or P_EventSystem.h"
+// #include "I_EventSystem.h" 
+// #include "P_EventSystem.h"
 #endif
 
 #include "ts/ink_platform.h"
