@@ -21,32 +21,19 @@
   limitations under the License.
  */
 
-/****************************************************************************
+#include "I_Tasks.h"
 
-  Event Subsystem
+// Globals
+EventType ET_TASK = ET_CALL;
+TasksProcessor tasksProcessor;
 
-
-
-**************************************************************************/
-#ifndef _P_EventSystem_h
-#define _P_EventSystem_h
-
-#include "ts/ink_platform.h"
-
-#include "I_EventSystem.h"
-
-#include "P_Thread.h"
-#include "P_VIO.h"
-#include "P_IOBuffer.h"
-#include "P_VConnection.h"
-#include "P_Freer.h"
-#include "P_UnixEvent.h"
-#include "P_UnixEThread.h"
-#include "P_ProtectedQueue.h"
-#include "P_UnixEventProcessor.h"
-#include "P_UnixSocketManager.h"
-#undef EVENT_SYSTEM_MODULE_VERSION
-#define EVENT_SYSTEM_MODULE_VERSION \
-  makeModuleVersion(EVENT_SYSTEM_MODULE_MAJOR_VERSION, EVENT_SYSTEM_MODULE_MINOR_VERSION, PRIVATE_MODULE_HEADER)
-
-#endif
+// Note that if the number of task_threads is 0, all continuations scheduled for
+// ET_TASK ends up running on ET_CALL (which is the net-threads).
+int
+TasksProcessor::start(int task_threads, size_t stacksize)
+{
+  if (task_threads > 0) {
+    ET_TASK = eventProcessor.spawn_event_threads(task_threads, "ET_TASK", stacksize);
+  }
+  return 0;
+}

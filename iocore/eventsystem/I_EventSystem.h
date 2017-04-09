@@ -39,10 +39,10 @@
 #include "I_Processor.h"
 #include "I_ProtectedQueue.h"
 #include "I_Thread.h"
-// #include "I_VIO.h"
-// #include "I_VConnection.h"
-// #include "I_RecProcess.h"
-// #include "I_SocketManager.h"
+#include "I_VIO.h"
+#include "I_VConnection.h"
+#include "I_RecProcess.h"
+#include "I_SocketManager.h"
 
 #define EVENT_SYSTEM_MODULE_MAJOR_VERSION 1
 #define EVENT_SYSTEM_MODULE_MINOR_VERSION 0
