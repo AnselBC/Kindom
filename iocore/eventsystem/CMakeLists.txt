@@ -11,7 +11,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ ${CMAKE_CURRENT_SOURC
 FIND_LIBRARY(RUNTIME_LIB /usr/lib  /usr/local/lib ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ts)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ts ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(tseventsystem SHARED 
+add_library(tseventsystem STATIC 
 IOBuffer.cc
 Lock.cc
 Thread.cc
