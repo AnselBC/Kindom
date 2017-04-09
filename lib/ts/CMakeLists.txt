@@ -21,6 +21,7 @@ ink_queue.cc
 ink_resource.cc
 hugepages.cc
 ink_rand.cc
+ContFlags.cc
 )
 
 target_link_libraries(tsutil) 
