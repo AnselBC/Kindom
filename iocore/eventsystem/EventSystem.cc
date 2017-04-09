@@ -64,4 +64,3 @@ ink_event_system_init(ModuleVersion v)
 
   init_buffer_allocators(iobuffer_advice);
 }
-

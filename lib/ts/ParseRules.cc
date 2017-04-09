@@ -32,13 +32,13 @@
 #include "ts/ParseRules.h"
 
 const unsigned int parseRulesCType[256] = {
-// #include "ParseRulesCType"
+  // #include "ParseRulesCType"
 };
 const char parseRulesCTypeToUpper[256] = {
-// #include "ParseRulesCTypeToUpper"
+  // #include "ParseRulesCTypeToUpper"
 };
 const char parseRulesCTypeToLower[256] = {
-// #include "ParseRulesCTypeToLower"
+  // #include "ParseRulesCTypeToLower"
 };
 
 // Implement our atol() / strtol() utility functions. Note that these will

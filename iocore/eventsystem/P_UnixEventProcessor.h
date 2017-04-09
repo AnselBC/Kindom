@@ -148,4 +148,3 @@ EventProcessor::schedule_every(Continuation *cont, ink_hrtime t, EventType et, i
 }
 
 #endif
-

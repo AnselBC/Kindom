@@ -314,4 +314,3 @@ public:
 extern inkcoreapi class EventProcessor eventProcessor;
 
 #endif /*_EventProcessor_h_*/
-

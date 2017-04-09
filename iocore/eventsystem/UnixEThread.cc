@@ -302,4 +302,3 @@ EThread::execute()
   } /* End switch */
   // coverity[missing_unlock]
 }
-

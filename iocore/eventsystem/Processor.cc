@@ -87,4 +87,3 @@ Processor::get_thread_count()
 {
   return (0);
 }
-

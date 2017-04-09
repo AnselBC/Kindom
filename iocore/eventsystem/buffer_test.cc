@@ -34,14 +34,14 @@
 int
 main(int /* argc ATS_UNUSED */, const char * /* argv ATS_UNUSED */ [])
 {
-//  RecModeT mode_type = RECM_STAND_ALONE;
+  //  RecModeT mode_type = RECM_STAND_ALONE;
 
-//  Layout::create();
-//  init_diags("", nullptr);
-//  RecProcessInit(mode_type);
+  //  Layout::create();
+  //  init_diags("", nullptr);
+  //  RecProcessInit(mode_type);
 
-//  ink_event_system_init(EVENT_SYSTEM_MODULE_VERSION);
-	init_buffer_allocators(0);
+  //  ink_event_system_init(EVENT_SYSTEM_MODULE_VERSION);
+  init_buffer_allocators(0);
   eventProcessor.start(TEST_THREADS);
 
   Thread *main_thread = new EThread;
@@ -64,4 +64,3 @@ main(int /* argc ATS_UNUSED */, const char * /* argv ATS_UNUSED */ [])
 
   exit(0);
 }
-

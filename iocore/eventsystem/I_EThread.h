@@ -335,4 +335,3 @@ operator new(size_t, ink_dummy_for_new *p)
 
 extern EThread *this_ethread();
 #endif /*_EThread_h_*/
-

@@ -96,4 +96,3 @@ Event::schedule_every(ink_hrtime aperiod, int acallback_event)
   if (!in_the_prot_queue)
     ethread->EventQueueExternal.enqueue_local(this);
 }
-

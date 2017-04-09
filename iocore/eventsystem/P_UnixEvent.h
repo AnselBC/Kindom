@@ -56,4 +56,3 @@ Event::Event()
 }
 
 #endif /*_UnixEvent_h_*/
-

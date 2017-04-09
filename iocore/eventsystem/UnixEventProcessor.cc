@@ -277,4 +277,3 @@ EventProcessor::spawn_thread(Continuation *cont, const char *thr_name, size_t st
 
   return e;
 }
-

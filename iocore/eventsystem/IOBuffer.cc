@@ -269,4 +269,3 @@ IOBufferReader::memcpy(const void *ap, int64_t len, int64_t offset)
 
   return p;
 }
-

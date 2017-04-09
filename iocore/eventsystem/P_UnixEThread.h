@@ -171,4 +171,3 @@ EThread::free_event(Event *e)
 }
 
 #endif /*_EThread_h_*/
-
