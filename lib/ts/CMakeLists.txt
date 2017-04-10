@@ -12,7 +12,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 
 
 aux_source_directory(. DIR_SRCS)
-add_library(tsutil SHARED 
+add_library(tsutil STATIC 
 Arena.cc
 BaseLogFile.cc
 Bitops.cc

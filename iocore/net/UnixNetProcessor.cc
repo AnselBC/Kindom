@@ -418,19 +418,6 @@ UnixNetProcessor::start(int, size_t)
   d.rec_int = 0;
   change_net_connections_throttle(nullptr, RECD_INT, d, nullptr);
 
-  // Socks
-  if (!netProcessor.socks_conf_stuff) {
-    socks_conf_stuff = new socks_conf_struct;
-    loadSocksConfiguration(socks_conf_stuff);
-    if (!socks_conf_stuff->socks_needed && socks_conf_stuff->accept_enabled) {
-      Warning("We can not have accept_enabled and socks_needed turned off"
-              " disabling Socks accept\n");
-      socks_conf_stuff->accept_enabled = 0;
-    } else {
-      // this is sslNetprocessor
-      socks_conf_stuff = netProcessor.socks_conf_stuff;
-    }
-  }
 
   // commented by vijay -  bug 2489945
   /*if (use_accept_thread) // 0

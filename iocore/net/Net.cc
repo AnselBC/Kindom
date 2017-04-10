@@ -119,9 +119,9 @@ ink_net_init(ModuleVersion version)
   if (!init_called) {
     // do one time stuff
     // create a stat block for NetStats
-    net_rsb = RecAllocateRawStatBlock((int)Net_Stat_Count);
-    configure_net();
-    register_net_stats();
+    // net_rsb = RecAllocateRawStatBlock((int)Net_Stat_Count);
+    // configure_net();
+    // register_net_stats();
   }
 
   init_called = 1;

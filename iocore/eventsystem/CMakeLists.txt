@@ -26,7 +26,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ts
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(tseventsystem SHARED 
+add_library(tseventsystem STATIC 
 EventSystem.cc
 Inline.cc
 IOBuffer.cc

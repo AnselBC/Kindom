@@ -10,7 +10,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 aux_source_directory(. DIR_SRCS)
-add_library(tsmgmt SHARED 
+add_library(tsmgmt STATIC 
 Alarms.cc
 BaseManager.cc
 FileManager.cc
@@ -30,4 +30,4 @@ utils/MgmtSocket.cc
 utils/MgmtUtils.cc
 )
 
-#target_link_libraries(tsutil) 
+target_link_libraries(tsmgmt tsutil) 

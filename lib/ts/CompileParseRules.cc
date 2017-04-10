@@ -37,19 +37,8 @@ char tparseRulesCTypeToLower[256];
 #include <ctype.h>
 #include "ts/ink_string.h"
 
-static char *
-uint_to_binary(unsigned int u)
-{
-  int i;
-  static char buf[33];
-  for (i = 0; i < 32; i++) {
-    buf[i] = ((u & (1 << (31 - i))) ? '1' : '0');
-  }
-  buf[32] = '\0';
-  return (buf);
-}
 
-int
+/*int
 main()
 {
   int c;
@@ -127,9 +116,7 @@ main()
 
   FILE *fp = fopen("ParseRulesCType", "w");
   for (c = 0; c < 256; c++) {
-    fprintf(fp, "/* %3d (%c) */\t", c, (isprint(c) ? c : '?'));
     fprintf(fp, "0x%08X%c\t\t", tparseRulesCType[c], (c != 255 ? ',' : ' '));
-    fprintf(fp, "/* [%s] */\n", uint_to_binary((unsigned int)(tparseRulesCType[c])));
   }
   fclose(fp);
   fp = fopen("ParseRulesCTypeToUpper", "w");
@@ -142,4 +129,4 @@ main()
   fclose(fp);
 
   return (0);
-}
+}*/

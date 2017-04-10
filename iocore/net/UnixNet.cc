@@ -235,7 +235,7 @@ initialize_thread_for_net(EThread *thread)
   InactivityCop *inactivityCop = new InactivityCop(get_NetHandler(thread)->mutex);
   int cop_freq                 = 1;
 
-  REC_ReadConfigInteger(cop_freq, "proxy.config.net.inactivity_check_frequency");
+  // REC_ReadConfigInteger(cop_freq, "proxy.config.net.inactivity_check_frequency");
   thread->schedule_every(inactivityCop, HRTIME_SECONDS(cop_freq));
 #endif
 
@@ -319,20 +319,6 @@ int
 NetHandler::startNetEvent(int event, Event *e)
 {
   // read configuration values and setup callbacks for when they change
-  REC_ReadConfigInt32(max_connections_in, "proxy.config.net.max_connections_in");
-  REC_ReadConfigInt32(max_connections_active_in, "proxy.config.net.max_connections_active_in");
-  REC_ReadConfigInt32(inactive_threashold_in, "proxy.config.net.inactive_threashold_in");
-  REC_ReadConfigInt32(transaction_no_activity_timeout_in, "proxy.config.net.transaction_no_activity_timeout_in");
-  REC_ReadConfigInt32(keep_alive_no_activity_timeout_in, "proxy.config.net.keep_alive_no_activity_timeout_in");
-  REC_ReadConfigInt32(default_inactivity_timeout, "proxy.config.net.default_inactivity_timeout");
-
-  RecRegisterConfigUpdateCb("proxy.config.net.max_connections_in", update_nethandler_config, (void *)this);
-  RecRegisterConfigUpdateCb("proxy.config.net.max_active_connections_in", update_nethandler_config, (void *)this);
-  RecRegisterConfigUpdateCb("proxy.config.net.inactive_threashold_in", update_nethandler_config, (void *)this);
-  RecRegisterConfigUpdateCb("proxy.config.net.transaction_no_activity_timeout_in", update_nethandler_config, (void *)this);
-  RecRegisterConfigUpdateCb("proxy.config.net.keep_alive_no_activity_timeout_in", update_nethandler_config, (void *)this);
-  RecRegisterConfigUpdateCb("proxy.config.net.default_inactivity_timeout", update_nethandler_config, (void *)this);
-
   Debug("net_queue", "proxy.config.net.max_connections_in updated to %d", max_connections_in);
   Debug("net_queue", "proxy.config.net.max_active_connections_in updated to %d", max_connections_active_in);
   Debug("net_queue", "proxy.config.net.inactive_threashold_in updated to %d", inactive_threashold_in);
@@ -390,7 +376,7 @@ NetHandler::mainNetEvent(int event, Event *e)
   EventIO *epd = nullptr;
   int poll_timeout;
 
-  NET_INCREMENT_DYN_STAT(net_handler_run_stat);
+  // NET_INCREMENT_DYN_STAT(net_handler_run_stat);
 
   process_enabled_list(this);
   if (likely(!read_ready_list.empty() || !write_ready_list.empty() || !read_enable_list.empty() || !write_enable_list.empty()))

@@ -29,7 +29,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 aux_source_directory(. DIR_SRCS)
-add_library(records SHARED 
+add_library(records STATIC 
 P_RecCore.cc
 RecConfigParse.cc
 RecCore.cc
@@ -44,5 +44,5 @@ RecRawStats.cc
 RecUtils.cc
 )
 
-target_link_libraries(records tsutil tsmgmt) 
+target_link_libraries(records tsutil tsmgmt tseventsystem pcre dl tcl8.5) 
 
