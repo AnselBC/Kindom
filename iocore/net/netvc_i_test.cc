@@ -5,5 +5,5 @@
 int
 main()
 {
-	NetVConnection *netvc = new NetVConnection();	
+	UnixNetVConnection *netvc = new UnixNetVConnection();	
 }

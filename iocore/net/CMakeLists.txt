@@ -33,5 +33,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 #target_link_libraries(tseventsystem tsutil pcre dl)
 AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 
-add_executable(test_i_netvc.out netProcessor_i_test.cc)
-target_link_libraries(test_i_netvc.out tseventsystem)
+add_executable(test_i_netvc.out 
+UnixNetVConnection.cc 
+netvc_i_test.cc)
+target_link_libraries(test_i_netvc.out tseventsystem tsutil pcre dl)

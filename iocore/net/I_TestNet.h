@@ -45,10 +45,12 @@
 // #include "I_EventSystem.h"
 #include "P_EventSystem.h"
 #include <netinet/in.h>
+#include "I_Net.h"
 
 
 #include "I_NetVConnection.h"
 #include "I_NetProcessor.h"
+#include "P_UnixNetVConnection.h"
 
 void ink_net_init(ModuleVersion version);
 #endif
