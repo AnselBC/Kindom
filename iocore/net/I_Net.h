@@ -91,8 +91,8 @@ extern int net_throttle_delay;
 #define ET_NET ET_CALL
 
 #include "I_NetVConnection.h"
-// #include "I_NetProcessor.h"
-// #include "I_SessionAccept.h"
+#include "I_NetProcessor.h"
+#include "I_SessionAccept.h"
 
 void ink_net_init(ModuleVersion version);
 #endif

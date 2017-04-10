@@ -45,7 +45,7 @@
 #define TS_STR(x) _TS_STR(x)
 
 /* clang-format off */
-#define BUILD_MACHINE "14"
+#define BUILD_MACHINE "ubuntu-linux"
 #define BUILD_PERSON "root"
 #define BUILD_GROUP "root"
 #define BUILD_NUMBER ""

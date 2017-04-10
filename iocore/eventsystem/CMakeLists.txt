@@ -6,29 +6,45 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lpcre -g -O0 -Wno-i
 SET(CMAKE_SOURCE_DIR .)
 
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ ${CMAKE_CURRENT_SOURCE_DIR}) 
+INCLUDE_DIRECTORIES(
+${CMAKE_CURRENT_SOURCE_DIR}/../../lib/records
+${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ 
+${CMAKE_CURRENT_SOURCE_DIR}
+) 
 
-FIND_LIBRARY(RUNTIME_LIB /usr/lib  /usr/local/lib ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ts)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ts ${CMAKE_CURRENT_SOURCE_DIR})
+FIND_LIBRARY(RUNTIME_LIB 
+/usr/lib  
+/usr/local/lib 
+${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ts
+${CMAKE_CURRENT_SOURCE_DIR}/../../lib/records
+)
 
-add_library(tseventsystem STATIC 
+link_directories(
+${CMAKE_CURRENT_SOURCE_DIR}/../../lib/mgmt
+${CMAKE_CURRENT_SOURCE_DIR}/../../lib/records
+${CMAKE_CURRENT_SOURCE_DIR}/../../lib/ts 
+${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_library(tseventsystem SHARED 
+EventSystem.cc
+Inline.cc
 IOBuffer.cc
 Lock.cc
-Thread.cc
-ProxyAllocator.cc
-IOBuffer.cc
-ProtectedQueue.cc
 PQ-List.cc
 Processor.cc
-UnixEventProcessor.cc
+ProtectedQueue.cc
+ProxyAllocator.cc
+SocketManager.cc
+Tasks.cc
+Thread.cc
 UnixEThread.cc
 UnixEvent.cc
-EventSystem.cc
-Tasks.cc
+UnixEventProcessor.cc
 )
 
 
-target_link_libraries(tseventsystem tsutil pcre dl)
+target_link_libraries(tseventsystem tsutil tsmgmt records pcre dl tcl8.5)
 AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 
 add_executable(test_lock.out lock_test.cc)

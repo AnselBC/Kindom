@@ -31,7 +31,7 @@
 #include "I_Event.h"
 #include "ts/List.h"
 #include "I_IOBuffer.h"
-// #include "I_Socks.h"
+#include "I_Socks.h"
 #include <ts/apidefs.h>
 #include <ts/MemView.h>
 
@@ -564,7 +564,7 @@ public:
 
   // The following variable used to obtain host addr when transparency
   // is enabled by SocksProxy
-  // SocksAddrType socks_addr;
+  SocksAddrType socks_addr;
 
   unsigned int attributes;
   EThread *thread;
@@ -586,7 +586,7 @@ public:
   */
   NetVConnection();
 
-  // virtual SOCKET get_socket() = 0;
+  virtual SOCKET get_socket() = 0;
 
   /** Set the TCP initial congestion window */
   virtual int set_tcp_init_cwnd(int init_cwnd) = 0;

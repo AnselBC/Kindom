@@ -31,15 +31,15 @@
 #include "ts/ink_platform.h"
 #include "ts/ParseRules.h"
 
-const unsigned int parseRulesCType[256] = {
-  // #include "ParseRulesCType"
-};
-const char parseRulesCTypeToUpper[256] = {
-  // #include "ParseRulesCTypeToUpper"
-};
-const char parseRulesCTypeToLower[256] = {
-  // #include "ParseRulesCTypeToLower"
-};
+// const unsigned int parseRulesCType[256] = {
+// #include "ParseRulesCType"
+// };
+// const char parseRulesCTypeToUpper[256] = {
+// #include "ParseRulesCTypeToUpper"
+// };
+// const char parseRulesCTypeToLower[256] = {
+// #include "ParseRulesCTypeToLower"
+// };
 
 // Implement our atol() / strtol() utility functions. Note that these will
 // deal with two cases atol does not:

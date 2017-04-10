@@ -29,6 +29,7 @@
   ip_ranges and multiple socks server support.
 */
 #define SOCKS_WITH_TS
+#undef SOCKS_WITH_TS
 
 #define SOCKS_DEFAULT_VERSION 0 // defined the configuration variable
 #define SOCKS4_VERSION 4

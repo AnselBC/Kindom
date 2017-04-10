@@ -93,15 +93,15 @@ extern RecRawStatBlock *net_rsb;
 #include "P_EventSystem.h"
 #include "I_Net.h"
 #include "P_NetVConnection.h"
-// #include "P_UnixNet.h"
-// #include "P_UnixNetProcessor.h"
-// #include "P_NetAccept.h"
+#include "P_UnixNet.h"
+#include "P_UnixNetProcessor.h"
+#include "P_NetAccept.h"
 #include "P_UnixNetVConnection.h"
-// #include "P_UnixPollDescriptor.h"
-// #include "P_Socks.h"
-// #include "P_CompletionUtil.h"
+#include "P_UnixPollDescriptor.h"
+#include "P_Socks.h"
+#include "P_CompletionUtil.h"
 // #include "P_NetVCTest.h"
-// #include "P_LibBulkIO.h"
+#include "P_LibBulkIO.h"
 
 // #include "P_SSLNetVConnection.h"
 // #include "P_SSLNetProcessor.h"
@@ -124,4 +124,3 @@ extern RecRawStatBlock *net_rsb;
 static size_t const CLIENT_CONNECTION_FIRST_READ_BUFFER_SIZE_INDEX = BUFFER_SIZE_INDEX_4K;
 
 #endif
-
