@@ -116,9 +116,9 @@ getNetAccept(int ID)
 void
 NetAccept::init_accept_loop(const char *thr_name)
 {
-  size_t stacksize;
+  size_t stacksize = 1048576;
 
-  REC_ReadConfigInteger(stacksize, "proxy.config.thread.default.stacksize");
+  // REC_ReadConfigInteger(stacksize, "proxy.config.thread.default.stacksize");
   SET_CONTINUATION_HANDLER(this, &NetAccept::acceptLoopEvent);
   eventProcessor.spawn_thread(this, thr_name, stacksize);
 }

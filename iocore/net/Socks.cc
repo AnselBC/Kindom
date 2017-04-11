@@ -468,7 +468,6 @@ loadSocksConfiguration(socks_conf_struct *socks_conf_stuff)
   Debug("Socks", "server connect timeout: %d socks respnonse timeout %d", socks_conf_stuff->server_connect_timeout,
         socks_conf_stuff->socks_timeout);
 
-
   Debug("SocksProxy", "Read SocksProxy info: accept_enabled = %d "
                       "accept_port = %d http_port = %d",
         socks_conf_stuff->accept_enabled, socks_conf_stuff->accept_port, socks_conf_stuff->http_port);

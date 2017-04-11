@@ -347,15 +347,16 @@ read_from_net(NetHandler *nh, UnixNetVConnection *vc, EThread *thread)
         ats_ip_ntop(vc->origin_trace_addr, origin_trace_ip, sizeof(origin_trace_ip));
 
         if (r > 0) {
-          // TraceIn((vc->origin_trace), vc->get_remote_addr(), vc->get_remote_port(), "CLIENT %s:%d\tbytes=%d\n%.*s", origin_trace_ip,
-                  // vc->origin_trace_port, (int)r, (int)r, (char *)tiovec[0].iov_base);
+          // TraceIn((vc->origin_trace), vc->get_remote_addr(), vc->get_remote_port(), "CLIENT %s:%d\tbytes=%d\n%.*s",
+          // origin_trace_ip,
+          // vc->origin_trace_port, (int)r, (int)r, (char *)tiovec[0].iov_base);
 
         } else if (r == 0) {
           // TraceIn((vc->origin_trace), vc->get_remote_addr(), vc->get_remote_port(), "CLIENT %s:%d closed connection",
-                  // origin_trace_ip, vc->origin_trace_port);
+          // origin_trace_ip, vc->origin_trace_port);
         } else {
           // TraceIn((vc->origin_trace), vc->get_remote_addr(), vc->get_remote_port(), "CLIENT %s:%d error=%s", origin_trace_ip,
-                  // vc->origin_trace_port, strerror(errno));
+          // vc->origin_trace_port, strerror(errno));
         }
       }
 
@@ -1087,13 +1088,14 @@ UnixNetVConnection::load_buffer_and_write(int64_t towrite, MIOBufferAccessor &bu
 
       if (r > 0) {
         // TraceOut(origin_trace, get_remote_addr(), get_remote_port(), "CLIENT %s:%d\tbytes=%d\n%.*s", origin_trace_ip,
-                 // origin_trace_port, (int)r, (int)r, (char *)tiovec[0].iov_base);
+        // origin_trace_port, (int)r, (int)r, (char *)tiovec[0].iov_base);
 
       } else if (r == 0) {
-        // TraceOut(origin_trace, get_remote_addr(), get_remote_port(), "CLIENT %s:%d\tbytes=0", origin_trace_ip, origin_trace_port);
+        // TraceOut(origin_trace, get_remote_addr(), get_remote_port(), "CLIENT %s:%d\tbytes=0", origin_trace_ip,
+        // origin_trace_port);
       } else {
         // TraceOut(origin_trace, get_remote_addr(), get_remote_port(), "CLIENT %s:%d error=%s", origin_trace_ip, origin_trace_port,
-          //       strerror(errno));
+        //       strerror(errno));
       }
     }
 
@@ -1542,11 +1544,11 @@ UnixNetVConnection::migrateToCurrentThread(Continuation *cont, EThread *t)
   hold_con.move(this->con);
   // SSLNetVConnection *sslvc = dynamic_cast<SSLNetVConnection *>(this);
 
- /* SSL *save_ssl = (sslvc) ? sslvc->ssl : nullptr;
-  if (save_ssl) {
-    SSLNetVCDetach(sslvc->ssl);
-    sslvc->ssl = nullptr;
-  }*/
+  /* SSL *save_ssl = (sslvc) ? sslvc->ssl : nullptr;
+   if (save_ssl) {
+     SSLNetVCDetach(sslvc->ssl);
+     sslvc->ssl = nullptr;
+   }*/
 
   // Do_io_close will signal the VC to be freed on the original thread
   // Since we moved the con context, the fd will not be closed
@@ -1567,15 +1569,15 @@ UnixNetVConnection::migrateToCurrentThread(Continuation *cont, EThread *t)
     return sslvc;
     // Update the SSL fields
   } else {*/
-    UnixNetVConnection *netvc = static_cast<UnixNetVConnection *>(netProcessor.allocate_vc(t));
-    // if (netvc->populate(hold_con, cont, save_ssl) != EVENT_DONE) {
-    //  netvc->do_io_close();
-    //  netvc = nullptr;
-    // } else {
-      netvc->set_context(get_context());
-   // }
-    return netvc;
- // }
+  UnixNetVConnection *netvc = static_cast<UnixNetVConnection *>(netProcessor.allocate_vc(t));
+  // if (netvc->populate(hold_con, cont, save_ssl) != EVENT_DONE) {
+  //  netvc->do_io_close();
+  //  netvc = nullptr;
+  // } else {
+  netvc->set_context(get_context());
+  // }
+  return netvc;
+  // }
 }
 
 void

@@ -47,7 +47,7 @@ struct process_killer : public Continuation {
   int
   kill_function(int /* event ATS_UNUSED */, Event * /* e ATS_UNUSED */)
   {
-		ink_atomic_increment((int *)&count, 1);
+    ink_atomic_increment((int *)&count, 1);
     printf("Count is %d \n", count);
     if (count <= 0)
       exit(1);
@@ -61,24 +61,23 @@ struct process_killer : public Continuation {
 int
 main(int /* argc ATS_UNUSED */, const char * /* argv ATS_UNUSED */ [])
 {
-//  RecModeT mode_type = RECM_STAND_ALONE;
-  count              = 0;
+  //  RecModeT mode_type = RECM_STAND_ALONE;
+  count = 0;
 
-//  Layout::create();
-//  init_diags("", nullptr);
-//  RecProcessInit(mode_type);
+  //  Layout::create();
+  //  init_diags("", nullptr);
+  //  RecProcessInit(mode_type);
 
-//  ink_event_system_init(EVENT_SYSTEM_MODULE_VERSION);
+  //  ink_event_system_init(EVENT_SYSTEM_MODULE_VERSION);
   eventProcessor.start(TEST_THREADS, 1048576); // Hardcoded stacksize at 1MB
 
   alarm_printer *alrm    = new alarm_printer(new_ProxyMutex());
   process_killer *killer = new process_killer(new_ProxyMutex());
   eventProcessor.schedule_in(killer, HRTIME_SECONDS(10));
   eventProcessor.schedule_every(alrm, HRTIME_SECONDS(1));
-	eventProcessor.schedule_every(alrm, HRTIME_SECONDS(1));
+  eventProcessor.schedule_every(alrm, HRTIME_SECONDS(1));
   while (!shutdown_event_system) {
     sleep(1);
   }
   return 0;
 }
-

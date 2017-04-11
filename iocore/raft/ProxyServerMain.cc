@@ -29,27 +29,29 @@ Vec<ProxyAcceptor> ProxyAcceptors;
 NetProcessor::AcceptOptions
 make_net_accept_options(const ProxyPort *port, unsigned nthreads)
 {
-	NetProcessor::AcceptOptions net;
-	
-	net.accept_threads = nthreads;
-	
-	if (port) {
-    net.ip_family             = port->m_family;
-    net.local_port            = port->m_port;
+  NetProcessor::AcceptOptions net;
+
+  net.accept_threads  = nthreads;
+  net.frequent_accept = true;
+
+  if (port) {
+    net.ip_family  = port->m_family;
+    net.local_port = port->m_port;
 
     if (port->m_inbound_ip.isValid()) {
       net.local_ip = port->m_inbound_ip;
-    } 
+    }
   }
+  return net;
 }
 
 static void
 MakeProxyAcceptor(ProxyAcceptor &acceptor, ProxyPort &port, unsigned nthreads)
 {
-	NetProcessor::AcceptOptions &net_opt = acceptor._net_opt;
-	ProxySessionAccept::Options accept_opt;
+  NetProcessor::AcceptOptions &net_opt = acceptor._net_opt;
+  ProxySessionAccept::Options accept_opt;
 
-	net_opt = make_net_accept_options(&port, nthreads);
+  net_opt = make_net_accept_options(&port, nthreads);
 
   if (port.m_outbound_ip4.isValid()) {
     accept_opt.outbound_ip4 = port.m_outbound_ip4;
@@ -58,16 +60,16 @@ MakeProxyAcceptor(ProxyAcceptor &acceptor, ProxyPort &port, unsigned nthreads)
   if (port.m_outbound_ip6.isValid()) {
     accept_opt.outbound_ip6 = port.m_outbound_ip6;
   }
-	
-	acceptor._accept = new ProxySessionAccept(accept_opt); 
+
+  acceptor._accept = new ProxySessionAccept(accept_opt);
 }
 
 void
 init_ProxyServer(int n_accept_threads)
 {
-	ProxyPort::Group &proxy_ports = ProxyPort::global();
+  ProxyPort::Group &proxy_ports = ProxyPort::global();
 
-	for (int i = 0, n = proxy_ports.length(); i < n; ++i) {
+  for (int i = 0, n = proxy_ports.length(); i < n; ++i) {
     MakeProxyAcceptor(ProxyAcceptors.add(), proxy_ports[i], n_accept_threads);
   }
 }
@@ -75,14 +77,14 @@ init_ProxyServer(int n_accept_threads)
 void
 start_ProxyServer()
 {
-	ProxyPort::Group &proxy_ports = ProxyPort::global();
-	
-	ink_assert(proxy_ports.length() == ProxyAcceptors.length());
-	for (int i = 0, n = proxy_ports.length(); i < n; ++i) {
-		ProxyAcceptor &acceptor = ProxyAcceptors[i];
-		ProxyPort &port         = proxy_ports[i];
-		if (nullptr == netProcessor.main_accept(acceptor._accept, port.m_fd, acceptor._net_opt)) {
-      return;	
-		}
-	}
+  ProxyPort::Group &proxy_ports = ProxyPort::global();
+
+  ink_assert(proxy_ports.length() == ProxyAcceptors.length());
+  for (int i = 0, n = proxy_ports.length(); i < n; ++i) {
+    ProxyAcceptor &acceptor = ProxyAcceptors[i];
+    ProxyPort &port         = proxy_ports[i];
+    if (nullptr == netProcessor.main_accept(acceptor._accept, port.m_fd, acceptor._net_opt)) {
+      return;
+    }
+  }
 }

@@ -97,11 +97,6 @@ UnixNetProcessor::accept_internal(Continuation *cont, int fd, AcceptOptions cons
   na->id        = ink_atomic_increment(&net_accept_number, 1);
   Debug("iocore_net_accept", "creating new net accept number %d", na->id);
 
-  // Fill in accept thread from configuration if necessary.
-  if (opt.accept_threads < 0) {
-    REC_ReadConfigInteger(accept_threads, "proxy.config.accept_threads");
-  }
-
   // We've handled the config stuff at start up, but there are a few cases
   // we must handle at this point.
   if (opt.localhost_only) {
@@ -407,14 +402,13 @@ UnixNetProcessor::start(int, size_t)
   netthreads   = eventProcessor.eventthread[etype];
   for (int i = 0; i < n_netthreads; ++i) {
     initialize_thread_for_net(netthreads[i]);
-//    extern void initialize_thread_for_http_sessions(EThread * thread, int thread_index);
-//   initialize_thread_for_http_sessions(netthreads[i], i);
+    //    extern void initialize_thread_for_http_sessions(EThread * thread, int thread_index);
+    //   initialize_thread_for_http_sessions(netthreads[i], i);
   }
 
   RecData d;
   d.rec_int = 0;
   change_net_connections_throttle(nullptr, RECD_INT, d, nullptr);
-
 
   // commented by vijay -  bug 2489945
   /*if (use_accept_thread) // 0

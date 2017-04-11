@@ -140,7 +140,6 @@ ProxySessionAcceptOptions::setBackdoor(bool flag)
   backdoor = flag;
   return *this;
 }
-
 }
 
 /**

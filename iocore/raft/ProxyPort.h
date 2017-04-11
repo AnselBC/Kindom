@@ -46,9 +46,9 @@ public:
 
   /// Type of transport on the connection.
 
-  int m_fd;             ///< Pre-opened file descriptor if present.
-  in_port_t m_port;     ///< Port on which to listen.
-  uint8_t m_family;     ///< IP address family.
+  int m_fd;         ///< Pre-opened file descriptor if present.
+  in_port_t m_port; ///< Port on which to listen.
+  uint8_t m_family; ///< IP address family.
   IpAddr m_inbound_ip;
   IpAddr m_outbound_ip4;
   IpAddr m_outbound_ip6;
@@ -124,7 +124,7 @@ public:
       @return @c true if a valid port was found, @c false if none.
   */
   static bool loadValue(const char *value ///< Source port data.
-                         );
+                        );
 
   /// Load default value if @a ports is empty.
   /// @return @c true if the default was needed / loaded.
@@ -221,4 +221,4 @@ ProxyPort::loadValue(const char *value)
   return self::loadValue(m_global, value);
 }
 
-#endif 
+#endif

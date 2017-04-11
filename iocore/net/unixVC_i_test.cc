@@ -7,5 +7,5 @@
 int
 main()
 {
-	UnixNetVConnection *vc = new UnixNetVConnection();
+  UnixNetVConnection *vc = new UnixNetVConnection();
 }

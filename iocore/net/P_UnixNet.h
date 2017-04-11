@@ -85,7 +85,7 @@ struct EventIO {
   union {
     Continuation *c;
     UnixNetVConnection *vc;
-//    DNSConnection *dnscon;
+    //    DNSConnection *dnscon;
     NetAccept *na;
     UnixUDPConnection *uc;
   } data;

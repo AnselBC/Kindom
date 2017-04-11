@@ -25,8 +25,8 @@
 #include "ts/Tokenizer.h"
 #include "ProxyRaft.h"
 
-const char *const ProxyPort::OPT_IPV6                    = "ipv6";
-const char *const ProxyPort::OPT_IPV4                    = "ipv4";
+const char *const ProxyPort::OPT_IPV6               = "ipv6";
+const char *const ProxyPort::OPT_IPV4               = "ipv4";
 const char *const ProxyPort::OPT_OUTBOUND_IP_PREFIX = "ip-out";
 const char *const ProxyPort::OPT_INBOUND_IP_PREFIX  = "ip-in";
 
@@ -45,10 +45,7 @@ ProxyPort::Group GLOBAL_DATA;
 
 ProxyPort::Group &ProxyPort::m_global = GLOBAL_DATA;
 
-ProxyPort::ProxyPort()
-	: m_fd(ts::NO_FD),
-	  m_port(0),
-    m_family(AF_INET)
+ProxyPort::ProxyPort() : m_fd(ts::NO_FD), m_port(0), m_family(AF_INET)
 {
 }
 
@@ -117,7 +114,7 @@ ProxyPort::processOptions(const char *opts)
     return zret;
   }
 
-	for (int i = 0, n_items = values.length(); i < n_items; ++i) {
+  for (int i = 0, n_items = values.length(); i < n_items; ++i) {
     const char *item = values[i];
     if (isdigit(item[0])) { // leading digit -> port value
       char *ptr;
@@ -131,7 +128,7 @@ ProxyPort::processOptions(const char *opts)
         m_port = port;
         zret   = true;
       }
-		} else if (0 == strcasecmp(OPT_IPV6, item)) {
+    } else if (0 == strcasecmp(OPT_IPV6, item)) {
       m_family = AF_INET6;
       af_set_p = true;
     } else if (0 == strcasecmp(OPT_IPV4, item)) {
@@ -149,11 +146,11 @@ ProxyPort::processOptions(const char *opts)
       } else {
         Warning("Invalid IP address value '%s' in port descriptor '%s'", item, opts);
       }
-		} else {
-			// error unknown option
-		}
-	}
-	
+    } else {
+      // error unknown option
+    }
+  }
+
   return zret;
 }
 
