@@ -62,6 +62,13 @@ public:
 
   static const unsigned buffer_size_index = CLIENT_CONNECTION_FIRST_READ_BUFFER_SIZE_INDEX;
 
+  /// Local address for outbound connection.
+  IpAddr outbound_ip4;
+  /// Local address for outbound connection.
+  IpAddr outbound_ip6;
+  /// Local port for outbound connection.
+  uint16_t outbound_port;
+
 private:
   NetVConnection *client_vc;
   bool tcp_init_cwnd_set;

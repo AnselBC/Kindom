@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
+
+project(KINDOM)
+
 set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++11 -pthread -lpcre -ldl -Wno-invalid-offsetof")
 INCLUDE_DIRECTORIES(
 ${CMAKE_CURRENT_SOURCE_DIR}/../../iocore/eventsystem

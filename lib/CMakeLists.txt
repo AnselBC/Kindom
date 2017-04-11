@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
  
-project (test_lock)
+project(KINDOM)
  
 ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/ts)
 ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/mgmt)

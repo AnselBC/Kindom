@@ -82,6 +82,10 @@ ProxySessionAccept::mainEvent(int event, void *data)
     VIO *vio;
     netvc                       = static_cast<NetVConnection *>(data);
     ProxyClientSession *session = new ProxyClientSession(nullptr, nullptr, netvc);
+    session->outbound_ip4       = outbound_ip4;
+    session->outbound_ip6       = outbound_ip6;
+    session->outbound_port      = outbound_port;
+
     if (!session->reader->is_read_avail_more_than(0)) {
       vio = netvc->do_io_read(session, BUFFER_SIZE_FOR_INDEX(ProxyClientSession::buffer_size_index), session->iobuf);
       vio->reenable();
