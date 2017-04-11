@@ -124,7 +124,7 @@ public:
   ProxyAllocator eventAllocator;
   ProxyAllocator netVCAllocator;
   ProxyAllocator sslNetVCAllocator;
-  ProxyAllocator http1ClientSessionAllocator;
+  ProxyAllocator ProxyClientSessionAllocator;
   ProxyAllocator http2ClientSessionAllocator;
   ProxyAllocator http2StreamAllocator;
   ProxyAllocator httpServerSessionAllocator;

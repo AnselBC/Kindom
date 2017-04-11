@@ -225,7 +225,7 @@ int
 RecRegisterManagerCb(int id, RecManagerCb _fn, void *_data)
 {
   // return lmgmt->registerMgmtCallback(id, _fn, _data);
-	return 0;
+  return 0;
 }
 
 void

@@ -36,6 +36,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 
 add_library(raft STATIC 
 ProxyPort.cc
+ProxySession.cc
 ProxyServerMain.cc
 ProxySessionAccept.cc
 )

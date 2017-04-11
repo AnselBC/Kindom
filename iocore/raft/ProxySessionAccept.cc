@@ -74,36 +74,25 @@ ProxySessionAccept::accept(NetVConnection *netvc, MIOBuffer *iobuf, IOBufferRead
 int
 ProxySessionAccept::mainEvent(int event, void *data)
 {
-  /*  NetVConnection *netvc;
-    ink_release_assert(event == NET_EVENT_ACCEPT || event == EVENT_ERROR);
-    ink_release_assert((event == NET_EVENT_ACCEPT) ? (data != nullptr) : (1));
+  NetVConnection *netvc;
+  ink_release_assert(event == NET_EVENT_ACCEPT || event == EVENT_ERROR);
+  ink_release_assert((event == NET_EVENT_ACCEPT) ? (data != nullptr) : (1));
 
-    if (event == NET_EVENT_ACCEPT) {
-      netvc = static_cast<NetVConnection *>(data);
-      if (!this->accept(netvc, nullptr, nullptr)) {
-        netvc->do_io_close();
-      }
-      return EVENT_CONT;
+  if (event == NET_EVENT_ACCEPT) {
+    VIO *vio;
+    netvc                       = static_cast<NetVConnection *>(data);
+    ProxyClientSession *session = new ProxyClientSession(nullptr, nullptr, netvc);
+    if (!session->reader->is_read_avail_more_than(0)) {
+      vio = netvc->do_io_read(session, BUFFER_SIZE_FOR_INDEX(ProxyClientSession::buffer_size_index), session->iobuf);
+      vio->reenable();
+    } else {
+      vio = netvc->do_io_read(nullptr, 0, nullptr);
+      session->accept(event, data);
     }
 
-    /////////////////
-    // EVENT_ERROR //
-    /////////////////
-    if (((long)data) == -ECONNABORTED) {
-      /////////////////////////////////////////////////
-      // Under Solaris, when accept() fails and sets //
-      // errno to EPROTO, it means the client has    //
-      // sent a TCP reset before the connection has  //
-      // been accepted by the server...  Note that   //
-      // in 2.5.1 with the Internet Server Supplement//
-      // and also in 2.6 the errno for this case has //
-      // changed from EPROTO to ECONNABORTED.        //
-      /////////////////////////////////////////////////
+    return EVENT_CONT;
+  }
 
-      // FIX: add time to user_agent_hangup
-      HTTP_SUM_DYN_STAT(http_ua_msecs_counts_errors_pre_accept_hangups_stat, 0);
-    }
-  */
   ink_abort("HTTP accept received fatal error: errno = %d", -((int)(intptr_t)data));
   return EVENT_CONT;
 }

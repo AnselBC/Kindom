@@ -49,7 +49,7 @@ LocalManager::mgmtCleanup()
   // fix me for librecords
 
   // if (virt_map) {
-    // virt_map->rl_downAddrs(); // We are bailing done need to worry about table
+  // virt_map->rl_downAddrs(); // We are bailing done need to worry about table
   // }
 
   closelog();
@@ -160,10 +160,10 @@ LocalManager::clusterOk()
   if (processRunning() == true && time(nullptr) > (this->proxy_started_at + 30) &&
       // this->ccom->alive_peers_count + 1 != REC_readInteger("proxy.process.cluster.nodes", &found)) {
     result = false;
-  }
+}
 
-  ink_assert(found);
-  return result;
+ink_assert(found);
+return result;
 }
 
 bool
@@ -681,9 +681,9 @@ LocalManager::sendMgmtMsgToProcesses(MgmtMessageHdr *mh)
   switch (mh->msg_id) {
   case MGMT_EVENT_SHUTDOWN: {
     run_proxy = false;
-  //  if (lmgmt->virt_map) {
-  //    lmgmt->virt_map->downAddrs(); /* Down all known addrs to be safe */
-   // }
+    //  if (lmgmt->virt_map) {
+    //    lmgmt->virt_map->downAddrs(); /* Down all known addrs to be safe */
+    // }
     this->closeProxyPorts();
     break;
   }

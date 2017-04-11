@@ -29,5 +29,6 @@
 #include "P_Net.h"
 #include "P_EventSystem.h"
 #include "ProxyServerMain.h"
+#include "ProxySession.h"
 
 #endif

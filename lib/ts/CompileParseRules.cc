@@ -37,7 +37,6 @@ char tparseRulesCTypeToLower[256];
 #include <ctype.h>
 #include "ts/ink_string.h"
 
-
 /*int
 main()
 {

@@ -89,7 +89,6 @@ void
 close_UnixNetVConnection(UnixNetVConnection *vc, EThread *t)
 {
   if (vc->con.fd != NO_FD) {
-    NET_SUM_GLOBAL_DYN_STAT(net_connections_currently_open_stat, -1);
   }
   NetHandler *nh = vc->nh;
   vc->cancel_OOB();
@@ -339,8 +338,6 @@ read_from_net(NetHandler *nh, UnixNetVConnection *vc, EThread *thread)
       ink_assert(niov <= countof(tiovec));
       r = socketManager.readv(vc->con.fd, &tiovec[0], niov);
 
-      NET_INCREMENT_DYN_STAT(net_calls_to_read_stat);
-
       if (vc->origin_trace) {
         char origin_trace_ip[INET6_ADDRSTRLEN];
 
@@ -373,7 +370,6 @@ read_from_net(NetHandler *nh, UnixNetVConnection *vc, EThread *thread)
     // check for errors
     if (r <= 0) {
       if (r == -EAGAIN || r == -ENOTCONN) {
-        NET_INCREMENT_DYN_STAT(net_calls_to_read_nodata_stat);
         vc->read.triggered = 0;
         nh->read_ready_list.remove(vc);
         return;
@@ -389,7 +385,6 @@ read_from_net(NetHandler *nh, UnixNetVConnection *vc, EThread *thread)
       read_signal_error(nh, vc, (int)-r);
       return;
     }
-    NET_SUM_DYN_STAT(net_read_bytes_stat, r);
 
     // Add data to buffer and signal continuation.
     buf.writer()->fill(r);
@@ -439,9 +434,6 @@ void
 write_to_net(NetHandler *nh, UnixNetVConnection *vc, EThread *thread)
 {
   ProxyMutex *mutex = thread->mutex.get();
-
-  NET_INCREMENT_DYN_STAT(net_calls_to_writetonet_stat);
-  NET_INCREMENT_DYN_STAT(net_calls_to_writetonet_afterpoll_stat);
 
   write_to_net_io(nh, vc, thread);
 }
@@ -1105,7 +1097,6 @@ UnixNetVConnection::load_buffer_and_write(int64_t towrite, MIOBufferAccessor &bu
     }
 
     ProxyMutex *mutex = thread->mutex.get();
-    NET_INCREMENT_DYN_STAT(net_calls_to_write_stat);
   } while (r == try_to_write && total_written < towrite);
 
   tmp_reader->dealloc();
@@ -1399,7 +1390,6 @@ UnixNetVConnection::connectUp(EThread *t, int fd)
     // The `con' could be closed if there is hyper emergency
     if (con.fd == NO_FD) {
       // We need to decrement the stat because close_UnixNetVConnection only decrements with a valid connection descriptor.
-      NET_SUM_GLOBAL_DYN_STAT(net_connections_currently_open_stat, -1);
       // Set errno force to EMFILE (reached limit for open file descriptors)
       errno = EMFILE;
       res   = -errno;
