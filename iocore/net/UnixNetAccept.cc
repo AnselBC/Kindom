@@ -247,12 +247,12 @@ NetAccept::do_blocking_accept(EThread *t)
     }
 
     // Throttle accepts
-    if (!opt.backdoor && (check_net_throttle(ACCEPT, now) || net_memory_throttle)) {
+    /* if (!opt.backdoor && (check_net_throttle(ACCEPT, now) || net_memory_throttle)) {
       Debug("net_accept", "Too many connections or too much memory used, throttling");
       check_throttle_warning();
       con.close();
       continue;
-    }
+    }*/
 
     // The con.fd may exceed the limitation of check_net_throttle() because we do blocking accept here.
     if (check_emergency_throttle(con)) {
@@ -268,7 +268,6 @@ NetAccept::do_blocking_accept(EThread *t)
       return -1;
     }
 
-    NET_SUM_GLOBAL_DYN_STAT(net_connections_currently_open_stat, 1);
     vc->id = net_next_connection_number();
     vc->con.move(con);
     vc->submit_time = now;

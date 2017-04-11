@@ -22,7 +22,7 @@ main(int /* argc ATS_UNUSED */, const char **argv)
   eventProcessor.start(2, stacksize);
   netProcessor.start(0, stacksize);
 
-  ProxyPort::loadValue("8080:ipv4 8081:ipv6");
+  ProxyPort::loadValue("8080");
   init_ProxyServer(1);
   start_ProxyServer();
 

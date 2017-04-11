@@ -244,7 +244,6 @@ net_connections_to_throttle(ThrottleType t)
   double headroom = t == ACCEPT ? NET_THROTTLE_ACCEPT_HEADROOM : NET_THROTTLE_CONNECT_HEADROOM;
   int64_t sval    = 0;
 
-  NET_READ_GLOBAL_DYN_SUM(net_connections_currently_open_stat, sval);
   int currently_open = (int)sval;
   // deal with race if we got to multiple net threads
   if (currently_open < 0)
