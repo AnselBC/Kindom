@@ -102,8 +102,6 @@ UnixNetProcessor::accept_internal(Continuation *cont, int fd, AcceptOptions cons
     REC_ReadConfigInteger(accept_threads, "proxy.config.accept_threads");
   }
 
-  NET_INCREMENT_DYN_STAT(net_accepts_currently_open_stat);
-
   // We've handled the config stuff at start up, but there are a few cases
   // we must handle at this point.
   if (opt.localhost_only) {
@@ -126,7 +124,6 @@ UnixNetProcessor::accept_internal(Continuation *cont, int fd, AcceptOptions cons
 
   int should_filter_int         = 0;
   na->server.http_accept_filter = false;
-  REC_ReadConfigInteger(should_filter_int, "proxy.config.net.defer_accept");
   if (should_filter_int > 0 && opt.etype == ET_NET)
     na->server.http_accept_filter = true;
 

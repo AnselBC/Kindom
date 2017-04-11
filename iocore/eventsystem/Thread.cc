@@ -56,7 +56,7 @@ key_destructor(void *value)
 ink_thread_key
 init_thread_key()
 {
-  ink_thread_key_create(&Thread::thread_data_key, key_destructor);
+  ink_thread_key_create(&Thread::thread_data_key, nullptr);
   return Thread::thread_data_key;
 }
 
