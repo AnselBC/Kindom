@@ -81,55 +81,54 @@
 #include <string>
 #include <vector>
 
-namespace raft
-{
-template <typename Server> class Raft
+using ::std::string
+using ::std::vector
+
+class Raft : public Continuation
 {
 public:
-  typedef typename Server::Message Message;
-  typedef typename Server::LogEntry LogEntry;
+    typedef typename Server::Message Message;
+    typedef typename Server::LogEntry LogEntry;
 
-  virtual ~Raft() {}
-  virtual void SetElectionTimeout(double seconds) = 0; // 1 sec.
+    virtual ~Raft() {}
+    virtual void SetElectionTimeout(ink_hrtime seconds) = 0; // 1 sec.
 
-  virtual void Recover(const LogEntry &entry) = 0;
-  virtual void Start(double now, int64_t random_seed) = 0;
-  virtual void Tick(double now)               = 0; // Call every ~election_timeout/10.
-  virtual void Propose(const LogEntry &entry) = 0;
-  virtual void Run(double now, const Message &message)                      = 0;
-  virtual void Snapshot(bool uncommitted, ::std::vector<LogEntry> *entries) = 0;
-  virtual void Stop() = 0; // Clean shutdown for faster failover.
+    virtual void Recover(const LogEntry &entry) = 0;
+    virtual void Start(ink_hrtime now, int64_t random_seed) = 0;
+    virtual void Tick(ink_hrtime now)               = 0; // Call every ~election_timeout/10.
+    virtual void Propose(const LogEntry &entry) = 0;
+    virtual void Run(ink_hrtime now, const Message &message)                      = 0;
+    virtual void Snapshot(bool uncommitted, ::std::vector<LogEntry> *entries) = 0;
+    virtual void StartVote() = 0;
+    virtual void Stop() = 0; // Clean shutdown for faster failover.
 };
-// The server argument is not owned by the Raft.
-template <typename Server> Raft<Server> *NewRaft(Server *server, const ::std::string &node);
 
 // The Server template argument of Raft must conform to this interface.
 class RaftServerInterface
 {
 public:
-  typedef Raft<RaftServerInterface> RaftClass;
-  class Config;   // See RaftConfigPb in raft.proto.
-  class LogEntry; // See RaftLogEntryPb in raft.proto.
-  class Message;  // See RaftMessagePb in raft.proto.
+    class Config;   // See RaftConfigPb in raft.proto.
+    class LogEntry; // See RaftLogEntryPb in raft.proto.
+    class Message;  // See RaftMessagePb in raft.proto.
 
-  // Since a single server may handle multiple raft objects, the
-  // RaftClass argument is provided to differentiate the caller.
+    // Since a single server may handle multiple raft objects, the
+    // RaftClass argument is provided to differentiate the caller.
 
-  // Send a raft message to the given node.
-  // Returns: true if accepted for delivery.
-  bool SendMessage(RaftClass *raft, const ::std::string &node, const Message &message);
-  // Get a LogEntry to update a node from after (term, index) up to end.  These
-  // could be the actual written log entry or for committed log entries one
-  // which summarizes the changes.
-  void GetLogEntry(RaftClass *raft, int64_t term, int64_t index, int64_t end, LogEntry *entry);
-  // Write a log entry, returning when it has been persisted.
-  void WriteLogEntry(RaftClass *raft, const LogEntry &entry);
-  // Commit a log entry, updating the server state.
-  void CommitLogEntry(RaftClass *raft, const LogEntry &entry);
-  // The leader has changed.  If leader.empty() there is no leader.
-  void LeaderChange(RaftClass *raft, const ::std::string &leader);
-  // The configuration has changed.
-  void ConfigChange(RaftClass *raft, const Config &config);
+    // Send a raft message to the given node.
+    // Returns: true if accepted for delivery.
+    bool SendMessage(Raft *raft, const string &node, const Message &message);
+    // Get a LogEntry to update a node from after (term, index) up to end.  These
+    // could be the actual written log entry or for committed log entries one
+    // which summarizes the changes.
+    void GetLogEntry(Raft *raft, int64_t term, int64_t index, int64_t end, LogEntry *entry);
+    // Write a log entry, returning when it has been persisted.
+    void WriteLogEntry(Raft *raft, const LogEntry &entry);
+    // Commit a log entry, updating the server state.
+    void CommitLogEntry(Raft *raft, const LogEntry &entry);
+    // The leader has changed.  If leader.empty() there is no leader.
+    void LeaderChange(Raft *raft, const string &leader);
+    // The configuration has changed.
+    void ConfigChange(Raft *raft, const Config &config);
 };
-} // namespace raft
+
 #endif // RAFT_H_
