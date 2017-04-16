@@ -27,7 +27,7 @@ Thread.cc
 )
 
 
-target_link_libraries(keventsystem)
+target_link_libraries(keventsystem tsutil)
 AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 
 add_executable(test_thread.out thread_test.cc)

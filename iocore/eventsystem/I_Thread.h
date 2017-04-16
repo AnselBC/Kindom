@@ -6,9 +6,7 @@
 #define PROJECT_I_THREAD_H
 
 #include <memory>
-#include "Kindom.h"
-
-using namespace std;
+#include "I_Thread.h"
 
 class Mutex;
 
@@ -30,6 +28,8 @@ public:
   static ktime cur_time;
 
   static void update_time(){};
+
+  Thread();
 
   static ktime
   get_time()

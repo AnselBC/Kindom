@@ -1,19 +1,29 @@
 #include "EventSystem.h"
 
+std::shared_ptr<Mutex> mutex;
+
 static void *
-thread_main(void *)
+thread_main(void *thread)
 {
   printf("thread start!!!\n");
+  Thread *t = (Thread *)thread;
+  MUTEX_TRY_LOCK(lock, mutex, t);
+  if (lock.is_locked()) {
+    printf("lock\n");
+  } else {
+    printf("unlock\n");
+  }
+  sleep(1);
 }
 int
 main()
 {
+  std::shared_ptr<Mutex> m(new Mutex);
+  mutex = m;
+
   Thread *thread1 = new Thread();
   Thread *thread2 = new Thread();
-  //	thread->set_specific();
-  //	printf("thread specified %p\n", thread->this_thread());
-  //	printf("get thread name: %s\n", thread->get_thread_name());
-  thread1->start("[scw1]", 0, thread_main, nullptr, nullptr);
-  thread2->start("[scw2]", 0, thread_main, nullptr, nullptr);
-  sleep(1);
+  thread1->start("[scw1]", 0, thread_main, thread1, nullptr);
+  thread2->start("[scw2]", 0, thread_main, thread1, nullptr);
+  sleep(3);
 }

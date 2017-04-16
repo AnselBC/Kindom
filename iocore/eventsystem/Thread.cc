@@ -3,7 +3,8 @@
 //
 
 #include "EventSystem.h"
-#include "Kindom.h"
+#include "I_Thread.h"
+
 static kthread_key init_thread_key();
 
 ktime Thread::cur_time              = 0;
@@ -80,4 +81,10 @@ Thread::start(const char *name, size_t stacksize, ThreadFunction f, void *a, voi
   tid = kthread_create(spawn_thread_internal, p, 0, stacksize, stack);
 
   return tid;
+}
+
+Thread::Thread()
+{
+  std::shared_ptr<Mutex> m(new Mutex);
+  mutex = m;
 }

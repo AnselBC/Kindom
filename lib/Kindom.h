@@ -17,25 +17,23 @@
 #define kmalloc malloc
 #define kfree free
 
-
 // Log interface
-#define Debug(_f, ...)   \
-    do {                 \
-    } while(0)
+#define Debug(_f, ...) \
+  do {                 \
+  } while (0)
 
+#define Warn(_f, ...) \
+  do {                \
+  } while (0)
 
-#define Warn(_f, ...)    \
-    do {                 \
-    } while(0)
+#define Error(_f, ...) \
+  do {                 \
+  } while (0)
 
-#define Error(_f, ...)   \
-    do {                 \
-    } while(0)
-
-#define Fatal(_f, ...)   \
-    do {                 \
-       exit(0);          \
-    } while(0)
+#define Fatal(_f, ...) \
+  do {                 \
+    assert(!(_f));     \
+  } while (0)
 
 #define kassert assert
 
@@ -48,4 +46,4 @@ typedef pthread_key_t kthread_key;
 // time interface
 typedef int64_t ktime;
 
-#endif //PROJECT_KINDOM_H
+#endif // PROJECT_KINDOM_H
