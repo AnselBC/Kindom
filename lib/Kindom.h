@@ -7,8 +7,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+#include <unistd.h>
 
-#define Debug 1
+#define DEBUG 1
 
 // mem interface
 #define kmalloc malloc
@@ -31,10 +34,10 @@
 
 #define Fatal(_f, ...)   \
     do {                 \
-       exit(0)           \
+       exit(0);          \
     } while(0)
 
-#define kassert aseert
+#define kassert assert
 
 // Thread interface
 #define MAX_THREAD_NAME 30
@@ -43,6 +46,6 @@ typedef pthread_cond_t kcond;
 typedef pthread_key_t kthread_key;
 
 // time interface
-typedef ktime int64_t;
+typedef int64_t ktime;
 
 #endif //PROJECT_KINDOM_H
