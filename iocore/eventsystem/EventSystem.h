@@ -6,4 +6,6 @@
 #define PROJECT_EVENTSYSTEM_H
 
 #include "I_Thread.h"
-#endif //PROJECT_EVENTSYSTEM_H
+#include "I_Mutex.h"
+
+#endif // PROJECT_EVENTSYSTEM_H

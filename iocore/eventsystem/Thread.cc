@@ -6,7 +6,7 @@
 #include "Kindom.h"
 static kthread_key init_thread_key();
 
-ktime Thread::cur_time = 0;
+ktime Thread::cur_time              = 0;
 kthread_key Thread::thread_data_key = init_thread_key();
 
 typedef struct {
@@ -34,7 +34,7 @@ spawn_thread_internal(void *a)
 static kthread
 kthread_create(void *(*f)(void *), void *a, int detached, size_t stacksize, void *stack)
 {
- 	kthread t;
+  kthread t;
   int ret;
   pthread_attr_t attr;
 
@@ -62,24 +62,22 @@ kthread_create(void *(*f)(void *), void *a, int detached, size_t stacksize, void
   return t;
 }
 
-
 kthread
 Thread::start(const char *name, size_t stacksize, ThreadFunction f, void *a, void *stack)
 {
-	thread_internal_data *p = (thread_internal_data *)kmalloc(sizeof(thread_internal_data));			
-	p->f = f;
-	p->a = a;
-	p->me = this;
-	memset(p->name, 0, MAX_THREAD_NAME);
-	// FixMe: name should not be large than MAX_THREAD_NAME
-  strncpy(p->name, name, strlen(name));	
-	
-	if (stacksize == 0) {
+  thread_internal_data *p = (thread_internal_data *)kmalloc(sizeof(thread_internal_data));
+  p->f                    = f;
+  p->a                    = a;
+  p->me                   = this;
+  memset(p->name, 0, MAX_THREAD_NAME);
+  // FixMe: name should not be large than MAX_THREAD_NAME
+  strncpy(p->name, name, strlen(name));
+
+  if (stacksize == 0) {
     stacksize = DEFAULT_STACKSIZE;
   }
- 
-	tid = kthread_create(spawn_thread_internal, p, 0, stacksize, stack);	
-	
-	return tid;
-}
 
+  tid = kthread_create(spawn_thread_internal, p, 0, stacksize, stack);
+
+  return tid;
+}

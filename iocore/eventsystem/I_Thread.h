@@ -14,57 +14,62 @@ class Mutex;
 
 typedef void *(*ThreadFunction)(void *arg);
 
-static const int DEFAULT_STACKSIZE      = 1048576; // 1MB
+static const int DEFAULT_STACKSIZE = 1048576; // 1MB
 
-class Thread {
+class Thread
+{
 public:
-    // Thread mutex;
-    std::shared_ptr<Mutex> mutex;
-    // Thread tid;
-    kthread  tid;
-    // Thread specified data.
-    static kthread_key thread_data_key;
+  // Thread mutex;
+  std::shared_ptr<Mutex> mutex;
+  // Thread tid;
+  kthread tid;
+  // Thread specified data.
+  static kthread_key thread_data_key;
 
-    // Time
-    static ktime cur_time;
+  // Time
+  static ktime cur_time;
 
-    static void update_time() {};
+  static void update_time(){};
 
-    static ktime
-    get_time() {
-        return cur_time;
-    }
+  static ktime
+  get_time()
+  {
+    return cur_time;
+  }
 
-    void
-    set_specific() {
-        assert(!pthread_setspecific(thread_data_key, this));
-    }
+  void
+  set_specific()
+  {
+    assert(!pthread_setspecific(thread_data_key, this));
+  }
 
-    Thread *
-    this_thread() {
-        return (Thread *)pthread_getspecific(thread_data_key);
-    }
+  Thread *
+  this_thread()
+  {
+    return (Thread *)pthread_getspecific(thread_data_key);
+  }
 
-    const char *
-    get_thread_name() {
-        return thr_name;
-    }
+  const char *
+  get_thread_name()
+  {
+    return thr_name;
+  }
 
-		void
-    set_thread_name(const char *name) {
-      thr_name = name;
-    }
+  void
+  set_thread_name(const char *name)
+  {
+    thr_name = name;
+  }
 
-    kthread start(const char *name, size_t stacksize, ThreadFunction f, void *a, void *stack);
+  kthread start(const char *name, size_t stacksize, ThreadFunction f, void *a, void *stack);
 
-		virtual void
-  	execute()
-  	{
-  	}
+  virtual void
+  execute()
+  {
+  }
 
 private:
-    const char *thr_name;
-
+  const char *thr_name;
 };
 
 static inline void
@@ -76,8 +81,8 @@ kset_thread_name(const char *name)
 static inline kthread_key
 init_thread_key()
 {
-    kassert(!pthread_key_create(&Thread::thread_data_key, nullptr));
-    return Thread::thread_data_key;
+  kassert(!pthread_key_create(&Thread::thread_data_key, nullptr));
+  return Thread::thread_data_key;
 }
 
-#endif //PROJECT_I_THREAD_H
+#endif // PROJECT_I_THREAD_H
