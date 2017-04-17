@@ -50,7 +50,7 @@ PriorityEventQueue::check_ready(khrtime now, EThread *t)
       if (e->cancelled) {
         e->in_the_priority_queue = 0;
         e->cancelled             = 0;
-				delete e;
+        delete e;
       } else {
         khrtime tt = e->timeout_at - now;
         for (j = i; j > 0 && tt <= PQ_BUCKET_TIME(j - 1);)

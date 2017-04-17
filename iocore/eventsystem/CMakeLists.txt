@@ -22,7 +22,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../lib
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(keventsystem STATIC 
+add_library(keventsystem SHARED 
+EThread.cc
 PQ-List.cc
 ProtectedQueue.cc
 Thread.cc

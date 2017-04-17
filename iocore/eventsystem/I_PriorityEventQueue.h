@@ -41,7 +41,7 @@ struct PriorityEventQueue {
   enqueue(Event *e, khrtime now)
   {
     khrtime t = e->timeout_at - now;
-    int i        = 0;
+    int i     = 0;
     // equivalent but faster
     if (t <= PQ_BUCKET_TIME(3)) {
       if (t <= PQ_BUCKET_TIME(1)) {

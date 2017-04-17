@@ -4,6 +4,7 @@
 
 #include "I_Thread.h"
 #include "ink_rand.h"
+#include "I_PriorityEventQueue.h"
 #include "I_ProtectedQueue.h"
 
 #define PER_THREAD_DATA (1024 * 1024)
@@ -11,6 +12,8 @@
 
 class Event;
 class Continuation;
+
+
 
 enum ThreadType {
   REGULAR = 0,
@@ -44,14 +47,14 @@ public:
   EThread(ThreadType att, int anid);
   EThread(ThreadType att, Event *e);
 
-  virtual ~EThread() { mutex == nullptr; }
+  virtual ~EThread(); 
   Event *schedule_spawn(Continuation *cont);
   Event *schedule(Event *e, bool fast_signal = false);
 
   char thread_private[PER_THREAD_DATA];
 
   ProtectedQueue EventQueueExternal;
-  //  PriorityEventQueue EventQueue;
+  PriorityEventQueue EventQueue;
 
   EThread **ethreads_to_be_signalled;
   int n_ethreads_to_be_signalled;

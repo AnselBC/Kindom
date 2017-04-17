@@ -141,7 +141,7 @@ Mutex_trylock(
 {
   kassert(t != nullptr);
   kassert(m != nullptr);
-	kassert(t == (EThread *)this_thread());
+  kassert(t == (EThread *)this_thread());
   if (m->thread_holding != t) {
     if (!kmutex_try_acquire(&m->mutex)) {
       return false;
@@ -155,6 +155,20 @@ Mutex_trylock(
   }
   m->nthread_holding++;
   return true;
+}
+
+inline bool
+Mutex_trylock(
+#ifdef DEBUG
+  const SourceLocation &location, const char *ahandler,
+#endif
+  std::shared_ptr<Mutex> &m, EThread *t)
+{
+	return Mutex_trylock(
+#ifdef DEBUG
+    location, ahandler,
+#endif
+    m.get(), t);
 }
 
 inline bool
@@ -186,6 +200,19 @@ Mutex_trylock_spin(
   return true;
 }
 
+inline bool
+Mutex_trylock_spin(
+#ifdef DEBUG
+  const SourceLocation &location, const char *ahandler,
+#endif
+  std::shared_ptr<Mutex> &m, EThread *t, int spincnt = 1)
+{
+	return Mutex_trylock_spin(
+#ifdef DEBUG
+    location, ahandler,
+#endif
+    m.get(), t, spincnt);
+}
 inline int
 Mutex_lock(
 #ifdef DEBUG
@@ -208,6 +235,20 @@ Mutex_lock(
   return true;
 }
 
+inline int
+Mutex_lock(
+#ifdef DEBUG
+  const SourceLocation &location, const char *ahandler,
+#endif
+  std::shared_ptr<Mutex> &m, EThread *t)
+{
+  return Mutex_lock(
+#ifdef DEBUG
+    location, ahandler,
+#endif
+    m.get(), t);
+}
+
 inline void
 Mutex_unlock(Mutex *m, EThread *t)
 {
@@ -222,6 +263,12 @@ Mutex_unlock(Mutex *m, EThread *t)
       kmutex_release(&m->mutex);
     }
   }
+}
+
+inline void
+Mutex_unlock(std::shared_ptr<Mutex> &m, EThread *t)
+{
+  Mutex_unlock(m.get(), t);
 }
 
 class MutexLock

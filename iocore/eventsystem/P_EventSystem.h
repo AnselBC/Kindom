@@ -7,7 +7,8 @@
 
 #include "I_EventSystem.h"
 
-#include "P_EThread.h"
+#include "P_Thread.h"
 #include "P_ProtectedQueue.h"
+#include "P_EThread.h"
 
 #endif // PROJECT_EVENTSYSTEM_H

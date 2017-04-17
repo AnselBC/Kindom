@@ -8,7 +8,7 @@ void
 ProtectedQueue::enqueue(Event *e, bool fast_signal)
 {
   kassert(!e->in_the_priority_queue && !e->in_the_prot_queue);
-  EThread *e_ethread       = e->ethread;
+  EThread *e_ethread   = e->ethread;
   e->in_the_prot_queue = 1;
   bool was_empty       = (katomiclist_push(&al, e) == nullptr);
   if (was_empty) {

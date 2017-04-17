@@ -40,10 +40,7 @@ public:
   }
 
   void
-  set_specific()
-  {
-    assert(!pthread_setspecific(thread_data_key, this));
-  }
+  set_specific();
 
   const char *
   get_thread_name()
@@ -65,6 +62,8 @@ public:
   }
 
   static khrtime get_hrtime_updated();
+
+	~Thread();
 
 private:
   const char *thr_name;

@@ -2,9 +2,9 @@
 #define _P_Thread_h_
 
 #include "I_Thread.h"
-inline
-Thread::~Thread()
+inline Thread::~Thread()
 {
+	mutex = nullptr;
 }
 
 inline void

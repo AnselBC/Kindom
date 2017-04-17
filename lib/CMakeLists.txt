@@ -6,7 +6,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 /usr/include/tcl8.5/
 )
 aux_source_directory(. DIR_SRCS)
-add_library(tsutil STATIC 
+add_library(tsutil SHARED 
 ink_rand.cc
 katomic.cc
 khrtime.cc

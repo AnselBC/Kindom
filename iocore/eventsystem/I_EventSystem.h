@@ -14,5 +14,4 @@
 #include "I_ProtectedQueue.h"
 #include "I_Thread.h"
 
-
 #endif
