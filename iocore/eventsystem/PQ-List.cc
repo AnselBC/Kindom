@@ -30,7 +30,7 @@ PriorityEventQueue::PriorityEventQueue()
 }
 
 void
-PriorityEventQueue::check_ready(ink_hrtime now, EThread *t)
+PriorityEventQueue::check_ready(khrtime now, EThread *t)
 {
   int i, j, k = 0;
   uint32_t check_buckets = (uint32_t)(now / PQ_BUCKET_TIME(0));
@@ -50,9 +50,9 @@ PriorityEventQueue::check_ready(ink_hrtime now, EThread *t)
       if (e->cancelled) {
         e->in_the_priority_queue = 0;
         e->cancelled             = 0;
-        EVENT_FREE(e, eventAllocator, t);
+				delete e;
       } else {
-        ink_hrtime tt = e->timeout_at - now;
+        khrtime tt = e->timeout_at - now;
         for (j = i; j > 0 && tt <= PQ_BUCKET_TIME(j - 1);)
           j--;
         e->in_heap = j;

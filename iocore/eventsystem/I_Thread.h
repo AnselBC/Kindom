@@ -45,12 +45,6 @@ public:
     assert(!pthread_setspecific(thread_data_key, this));
   }
 
-  Thread *
-  this_thread()
-  {
-    return (Thread *)pthread_getspecific(thread_data_key);
-  }
-
   const char *
   get_thread_name()
   {
@@ -70,11 +64,13 @@ public:
   {
   }
 
-  khrtime get_hrtime_updated();
+  static khrtime get_hrtime_updated();
 
 private:
   const char *thr_name;
 };
+
+extern Thread *this_thread();
 
 inline khrtime
 Thread::get_hrtime_updated()

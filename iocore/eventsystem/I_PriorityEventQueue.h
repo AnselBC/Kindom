@@ -34,13 +34,13 @@ class EThread;
 
 struct PriorityEventQueue {
   Que(Event, link) after[N_PQ_LIST];
-  ink_hrtime last_check_time;
+  khrtime last_check_time;
   uint32_t last_check_buckets;
 
   void
-  enqueue(Event *e, ink_hrtime now)
+  enqueue(Event *e, khrtime now)
   {
-    ink_hrtime t = e->timeout_at - now;
+    khrtime t = e->timeout_at - now;
     int i        = 0;
     // equivalent but faster
     if (t <= PQ_BUCKET_TIME(3)) {
@@ -88,26 +88,26 @@ struct PriorityEventQueue {
   void
   remove(Event *e)
   {
-    ink_assert(e->in_the_priority_queue);
+    kassert(e->in_the_priority_queue);
     e->in_the_priority_queue = 0;
     after[e->in_heap].remove(e);
   }
 
   Event *
-  dequeue_ready(ink_hrtime t)
+  dequeue_ready(khrtime t)
   {
     (void)t;
     Event *e = after[0].dequeue();
     if (e) {
-      ink_assert(e->in_the_priority_queue);
+      kassert(e->in_the_priority_queue);
       e->in_the_priority_queue = 0;
     }
     return e;
   }
 
-  void check_ready(ink_hrtime now, EThread *t);
+  void check_ready(khrtime now, EThread *t);
 
-  ink_hrtime
+  khrtime
   earliest_timeout()
   {
     for (int i = 0; i < N_PQ_LIST; i++) {

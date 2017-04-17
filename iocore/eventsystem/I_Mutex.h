@@ -141,7 +141,7 @@ Mutex_trylock(
 {
   kassert(t != nullptr);
   kassert(m != nullptr);
-  kassert(t == t->this_thread());
+  kassert(t == this_thread());
   if (m->thread_holding != t) {
     if (!kmutex_try_acquire(&m->mutex)) {
       return false;
@@ -166,7 +166,7 @@ Mutex_trylock_spin(
 {
   kassert(t != nullptr);
   kassert(m != nullptr);
-  kassert(t == t->this_thread());
+  kassert(t == this_thread());
   if (m->thread_holding != t) {
     int locked;
     do {
@@ -196,7 +196,7 @@ Mutex_lock(
 {
   kassert(t != nullptr);
   kassert(m != nullptr);
-  kassert(t == t->this_thread());
+  kassert(t == this_thread());
   if (m->thread_holding != t) {
     kmutex_acquire(&m->mutex);
     m->thread_holding = t;
@@ -217,7 +217,7 @@ Mutex_unlock(Mutex *m, Thread *t)
   kassert(m != nullptr);
 
   if (m->nthread_holding) {
-    kassert(t == t->this_thread());
+    kassert(t == this_thread());
     m->nthread_holding--;
     if (!m->nthread_holding) {
       kassert(m->thread_holding);

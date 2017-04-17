@@ -8,7 +8,7 @@ void
 ProtectedQueue::enqueue(Event *e, bool fast_signal)
 {
   kassert(!e->in_the_priority_queue && !e->in_the_prot_queue);
-  EThread *e_thr       = e->ethread;
+  EThread *e_ethread       = e->ethread;
   e->in_the_prot_queue = 1;
   bool was_empty       = (katomiclist_push(&al, e) == nullptr);
   if (was_empty) {
@@ -102,7 +102,7 @@ ProtectedQueue::dequeue_timed(khrtime cur_time, khrtime timeout, bool sleep)
   Event *e;
   if (sleep) {
     kmutex_acquire(&lock);
-    if (INK_ATOMICLIST_EMPTY(al)) {
+    if (KATOMICLIST_EMPTY(al)) {
       timespec ts = khrtime_to_timespec(timeout);
       kcond_timedwait(&might_have_data, &lock, &ts);
     }
@@ -111,7 +111,7 @@ ProtectedQueue::dequeue_timed(khrtime cur_time, khrtime timeout, bool sleep)
 
   e = (Event *)katomiclist_popall(&al);
   // invert the list, to preserve order
-  SLL<Event, Event::Lklink> l, t;
+  SLL<Event, Event::Link_link> l, t;
   t.head = e;
   while ((e = t.pop()))
     l.push(e);
@@ -121,7 +121,7 @@ ProtectedQueue::dequeue_timed(khrtime cur_time, khrtime timeout, bool sleep)
       localQueue.enqueue(e);
     else {
       e->mutex = nullptr;
-      eventAllocator.free(e);
+      delete e;
     }
   }
 }
