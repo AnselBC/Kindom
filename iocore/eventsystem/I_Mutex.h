@@ -7,6 +7,7 @@
 
 #include "EventSystem.h"
 #include "SourceLocation.h"
+#include "kmutex.h"
 
 #ifdef DEBUG
 #define SCOPED_MUTEX_LOCK(_l, _m, _t) MutexLock _l(MakeSourceLocation(), nullptr, _m, _t)
@@ -92,28 +93,8 @@
 
 #define MUTEX_UNTAKE_LOCK(_m, _t) Mutex_unlock(_m, _t)
 
-typedef pthread_mutex_t kmutex;
-
 class Thread;
 typedef Thread *ThreadPtr;
-
-class x_pthread_mutexattr_t
-{
-public:
-  pthread_mutexattr_t attr;
-  x_pthread_mutexattr_t();
-  ~x_pthread_mutexattr_t() {}
-};
-
-inline x_pthread_mutexattr_t::x_pthread_mutexattr_t()
-{
-  pthread_mutexattr_init(&attr);
-#ifndef POSIX_THREAD_10031c
-  pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-#endif
-}
-
-static x_pthread_mutexattr_t _g_mattr;
 
 class Mutex
 {
@@ -128,7 +109,7 @@ public:
   const char *handler;
   int taken;
 #endif
-  ~Mutex() { pthread_mutex_destroy(&mutex); }
+  ~Mutex() { kmutex_destroy(&mutex); }
   Mutex()
 #ifdef DEBUG
     : srcloc(nullptr, nullptr, 0)
@@ -146,9 +127,7 @@ public:
   void
   init(const char *name = "UnnamedMutex")
   {
-    if (pthread_mutex_init(&mutex, &_g_mattr.attr) != 0) {
-      abort();
-    }
+    kmutex_init(&mutex, &_g_mattr.attr);
   }
 };
 
@@ -163,7 +142,7 @@ Mutex_trylock(
   kassert(m != nullptr);
   kassert(t == t->this_thread());
   if (m->thread_holding != t) {
-    if (pthread_mutex_trylock(&m->mutex)) {
+    if (!kmutex_try_acquire(&m->mutex)) {
       return false;
     }
     m->thread_holding = t;
@@ -190,7 +169,7 @@ Mutex_trylock_spin(
   if (m->thread_holding != t) {
     int locked;
     do {
-      if (locked = (pthread_mutex_trylock(&m->mutex) == 0))
+      if (locked = kmutex_try_acquire(&m->mutex))
         break;
     } while (--spincnt);
     if (!locked) {
@@ -218,9 +197,7 @@ Mutex_lock(
   kassert(m != nullptr);
   kassert(t == t->this_thread());
   if (m->thread_holding != t) {
-    if (pthread_mutex_lock(&m->mutex) != 0) {
-      Fatal("Pthread lock acquire error");
-    }
+      kmutex_acquire(&m->mutex)
     m->thread_holding = t;
 #ifdef DEBUG
     m->srcloc  = location;
@@ -244,9 +221,7 @@ Mutex_unlock(Mutex *m, Thread *t)
     if (!m->nthread_holding) {
       kassert(m->thread_holding);
       m->thread_holding = 0;
-      if (pthread_mutex_unlock(&m->mutex) != 0) {
-        Fatal("Pthread unlock error");
-      }
+        kmutex_release(&m->mutex)
     }
   }
 }

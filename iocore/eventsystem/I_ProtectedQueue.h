@@ -5,7 +5,9 @@
 #ifndef TEST_LOCK_I_PROTECTEDQUEUE_H
 #define TEST_LOCK_I_PROTECTEDQUEUE_H
 
+#include "Kindom.h"
 #include "I_Event.h"
+#include "kmutex.h"
 
 struct ProtectedQueue {
   void enqueue(Event *e, bool fast_signal = false);
@@ -16,10 +18,10 @@ struct ProtectedQueue {
   Event *dequeue_local();
   void dequeue_timed(ink_hrtime cur_time, ink_hrtime timeout, bool sleep);
 
-  InkAtomicList al;
-  ink_mutex lock;
-  ink_cond might_have_data;
-  std::queue<Event> localQueue;
+  KAtomicList al;
+  kmutex lock;
+  kcond might_have_data;
+  Que(Event, link) localQueue;
 
   ProtectedQueue();
 };

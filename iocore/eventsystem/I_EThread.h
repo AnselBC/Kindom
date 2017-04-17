@@ -6,6 +6,7 @@
 #include "I_Thread.h"
 #include "I_Event.h"
 #include "ink_rand.h"
+#include "I_ProtectedQueue.h"
 
 #define PER_THREAD_DATA (1024 * 1024)
 #define MUTEX_RETRY_DELAY HRTIME_MSECONDS(20)
@@ -50,6 +51,8 @@ public:
   Event *schedule(Event *e, bool fast_signal = false);
 
   char thread_private[PER_THREAD_DATA];
+
+
 };
 
 #endif
