@@ -8,5 +8,7 @@
 #include "Kindom.h"
 #include "I_EThread.h"
 #include "I_Mutex.h"
+#include "I_Continuation.h"
+#include "I_Action.h"
 
 #endif // PROJECT_EVENTSYSTEM_H
