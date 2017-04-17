@@ -79,65 +79,62 @@ class EThread;
 class Event : public Action
 {
 public:
-    void schedule_imm(int callback_event = EVENT_IMMEDIATE);
-    void schedule_at(ink_hrtime atimeout_at, int callback_event = EVENT_INTERVAL);
-    void schedule_in(ink_hrtime atimeout_in, int callback_event = EVENT_INTERVAL);
-    void schedule_every(ink_hrtime aperiod, int callback_event = EVENT_INTERVAL);
-    void free();
-    EThread *ethread;
+  void schedule_imm(int callback_event = EVENT_IMMEDIATE);
+  void schedule_at(ink_hrtime atimeout_at, int callback_event = EVENT_INTERVAL);
+  void schedule_in(ink_hrtime atimeout_in, int callback_event = EVENT_INTERVAL);
+  void schedule_every(ink_hrtime aperiod, int callback_event = EVENT_INTERVAL);
+  void free();
+  EThread *ethread;
 
-    unsigned int in_the_prot_queue : 1;
-    unsigned int in_the_priority_queue : 1;
-    unsigned int immediate : 1;
-    unsigned int globally_allocated : 1;
-    unsigned int in_heap : 4;
-    int callback_event;
+  unsigned int in_the_prot_queue : 1;
+  unsigned int in_the_priority_queue : 1;
+  unsigned int immediate : 1;
+  unsigned int globally_allocated : 1;
+  unsigned int in_heap : 4;
+  int callback_event;
 
-    ktime timeout_at;
-    ktime period;
+  ktime timeout_at;
+  ktime period;
 
-    // Bound event specific data.
-    void *cookie;
+  // Bound event specific data.
+  void *cookie;
 
-    Event();
+  Event();
 
-    Event *
-    init(Continuation *c, ink_hrtime atimeout_at = 0, ink_hrtime aperiod = 0)
-    {
-        continuation = c;
-        timeout_at   = atimeout_at;
-        period       = aperiod;
-        immediate    = !period && !atimeout_at;
-        cancelled    = false;
-        return this;
-    }
+  Event *
+  init(Continuation *c, ink_hrtime atimeout_at = 0, ink_hrtime aperiod = 0)
+  {
+    continuation = c;
+    timeout_at   = atimeout_at;
+    period       = aperiod;
+    immediate    = !period && !atimeout_at;
+    cancelled    = false;
+    return this;
+  }
 
 private:
-//    void *operator new(size_t size); // use the fast allocators
+  //    void *operator new(size_t size); // use the fast allocators
 private:
-    // prevent unauthorized copies (Not implemented)
-    Event(const Event &);
-    Event &operator=(const Event &);
+  // prevent unauthorized copies (Not implemented)
+  Event(const Event &);
+  Event &operator=(const Event &);
 
 public:
-    // LINK(Event, link);
-    ~Event() {
-        mutex = nullptr;
-    }
+  // LINK(Event, link);
+  ~Event() { mutex = nullptr; }
 };
 
-inline
-Event::Event()
-        : ethread(0),
-          in_the_prot_queue(false),
-          in_the_priority_queue(false),
-          immediate(false),
-          globally_allocated(true),
-          in_heap(false),
-          timeout_at(0),
-          period(0),
-          cookie(nullptr)
+inline Event::Event()
+  : ethread(0),
+    in_the_prot_queue(false),
+    in_the_priority_queue(false),
+    immediate(false),
+    globally_allocated(true),
+    in_heap(false),
+    timeout_at(0),
+    period(0),
+    cookie(nullptr)
 {
 }
 
-#endif //TEST_LOCK_I_EVENT_H
+#endif // TEST_LOCK_I_EVENT_H

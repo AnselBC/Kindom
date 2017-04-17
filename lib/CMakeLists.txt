@@ -7,6 +7,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 )
 aux_source_directory(. DIR_SRCS)
 add_library(tsutil STATIC 
+ink_rand.cc
+katomic.cc
 SourceLocation.cc
 )
 

@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <assert.h>
 
+#include "Kindom.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,14 +19,13 @@ extern "C" {
 void kqueue_load_64(void *dst, void *src);
 
 #ifdef __x86_64__
-#define INK_QUEUE_LD64(dst, src) *((uint64_t *)&(dst)) = *((uint64_t *)&(src))
+#define KQUEUE_LD64(dst, src) *((uint64_t *)&(dst)) = *((uint64_t *)&(src))
 #else
-#define INK_QUEUE_LD64(dst, src) (kqueue_load_64((void *)&(dst), (void *)&(src)))
+#define KQUEUE_LD64(dst, src) (kqueue_load_64((void *)&(dst), (void *)&(src)))
 #endif
 
-
 #if KHAS_128BIT_CAS
-#define KQUEUE_LD(dst, src)                                                       \
+#define KQUEUE_LD(dst, src)                                                          \
   do {                                                                               \
     *(__int128_t *)&(dst) = __sync_val_compare_and_swap((__int128_t *)&(src), 0, 0); \
   } while (0)
@@ -41,27 +41,25 @@ void kqueue_load_64(void *dst, void *src);
 #define TO_PTR(_x) ((void *)(_x))
 #endif
 
-
 typedef union {
 #if (defined(__i386__) || defined(__arm__) || defined(__mips__)) && (SIZEOF_VOIDP == 4)
-    typedef int32_t version_type;
+  typedef int32_t version_type;
   typedef int64_t data_type;
 #elif KHAS_128BIT_CAS
-    typedef int64_t version_type;
+  typedef int64_t version_type;
   typedef __int128_t data_type;
 #else
-    typedef int64_t version_type;
-    typedef int64_t data_type;
+  typedef int64_t version_type;
+  typedef int64_t data_type;
 #endif
 
-    struct {
-        void *pointer;
-        version_type version;
-    } s;
+  struct {
+    void *pointer;
+    version_type version;
+  } s;
 
-    data_type data;
+  data_type data;
 } head_p;
-
 
 #if (defined(__i386__) || defined(__arm__) || defined(__mips__)) && (SIZEOF_VOIDP == 4)
 #define FREELIST_POINTER(_x) (_x).s.pointer
@@ -85,11 +83,10 @@ typedef union {
 #endif
 
 typedef struct {
-    volatile head_p head;
-    const char *name;
-    uint32_t offset;
+  volatile head_p head;
+  const char *name;
+  uint32_t offset;
 } KAtomicList;
-
 
 #if !defined(KQUEUE_NT)
 #define KATOMICLIST_EMPTY(_x) (!(TO_PTR(FREELIST_POINTER((_x.head)))))
@@ -110,21 +107,23 @@ void *katomiclist_popall(KAtomicList *l);
  */
 void *katomiclist_remove(KAtomicList *l, void *item);
 
-
-
 inline void
 kqueue_load_64(void *dst, void *src)
 {
 #if (defined(__i386__) || defined(__arm__) || defined(__mips__)) && (SIZEOF_VOIDP == 4)
-    volatile int32_t src_version = (*(head_p *)src).s.version;
+  volatile int32_t src_version = (*(head_p *)src).s.version;
   void *src_pointer            = (*(head_p *)src).s.pointer;
 
   (*(head_p *)dst).s.version = src_version;
   (*(head_p *)dst).s.pointer = src_pointer;
 #else
-    *(void **)dst = *(void **)src;
+  *(void **)dst = *(void **)src;
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 typedef volatile int8_t vint8;
 typedef volatile int16_t vint16;
@@ -147,69 +146,69 @@ typedef vvoidp *pvvoidp;
 
 /* see http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html */
 
-// ink_atomic_swap(ptr, value)
+// katomic_swap(ptr, value)
 // Writes @value into @ptr, returning the previous value.
 template <typename T>
 static inline T
-ink_atomic_swap(volatile T *mem, T value)
+katomic_swap(volatile T *mem, T value)
 {
-    return __sync_lock_test_and_set(mem, value);
+  return __sync_lock_test_and_set(mem, value);
 }
 
-// ink_atomic_cas(mem, prev, next)
+// katomic_cas(mem, prev, next)
 // Atomically store the value @next into the pointer @mem, but only if the current value at @mem is @prev.
 // Returns true if @next was successfully stored.
 template <typename T>
 static inline bool
-ink_atomic_cas(volatile T *mem, T prev, T next)
+katomic_cas(volatile T *mem, T prev, T next)
 {
-    return __sync_bool_compare_and_swap(mem, prev, next);
+  return __sync_bool_compare_and_swap(mem, prev, next);
 }
 
-// ink_atomic_increment(ptr, count)
+// katomic_increment(ptr, count)
 // Increment @ptr by @count, returning the previous value.
 template <typename Type, typename Amount>
 static inline Type
-ink_atomic_increment(volatile Type *mem, Amount count)
+katomic_increment(volatile Type *mem, Amount count)
 {
-    return __sync_fetch_and_add(mem, (Type)count);
+  return __sync_fetch_and_add(mem, (Type)count);
 }
 
-// ink_atomic_decrement(ptr, count)
+// katomic_decrement(ptr, count)
 // Decrement @ptr by @count, returning the previous value.
 template <typename Type, typename Amount>
 static inline Type
-ink_atomic_decrement(volatile Type *mem, Amount count)
+katomic_decrement(volatile Type *mem, Amount count)
 {
-    return __sync_fetch_and_sub(mem, (Type)count);
+  return __sync_fetch_and_sub(mem, (Type)count);
 }
 
 // Special hacks for ARM 32-bit
 #if (defined(__arm__) || defined(__mips__)) && (SIZEOF_VOIDP == 4)
-extern ink_mutex __global_death;
+extern kmutex __global_death;
 
 template <>
 inline int64_t
-ink_atomic_swap<int64_t>(pvint64 mem, int64_t value)
+katomic_swap<int64_t>(pvint64 mem, int64_t value)
 {
   int64_t old;
-  ink_mutex_acquire(&__global_death);
+  kmutex_acquire(&__global_death);
   old  = *mem;
   *mem = value;
-  ink_mutex_release(&__global_death);
+  kmutex_release(&__global_death);
   return old;
 }
 
 template <>
 inline bool
-ink_atomic_cas<int64_t>(pvint64 mem, int64_t old, int64_t new_value)
+katomic_cas<int64_t>(pvint64 mem, int64_t old, int64_t new_value)
 {
   int64_t curr;
-  ink_mutex_acquire(&__global_death);
+  kmutex_acquire(&__global_death);
   curr = *mem;
   if (old == curr)
     *mem = new_value;
-  ink_mutex_release(&__global_death);
+  kmutex_release(&__global_death);
   if (old == curr)
     return 1;
   return 0;
@@ -217,65 +216,60 @@ ink_atomic_cas<int64_t>(pvint64 mem, int64_t old, int64_t new_value)
 
 template <typename Amount>
 static inline int64_t
-ink_atomic_increment(pvint64 mem, Amount value)
+katomic_increment(pvint64 mem, Amount value)
 {
   int64_t curr;
-  ink_mutex_acquire(&__global_death);
+  kmutex_acquire(&__global_death);
   curr = *mem;
   *mem = curr + value;
-  ink_mutex_release(&__global_death);
+  kmutex_release(&__global_death);
   return curr;
 }
 
 template <typename Amount>
 static inline int64_t
-ink_atomic_decrement(pvint64 mem, Amount value)
+katomic_decrement(pvint64 mem, Amount value)
 {
   int64_t curr;
-  ink_mutex_acquire(&__global_death);
+  kmutex_acquire(&__global_death);
   curr = *mem;
   *mem = curr - value;
-  ink_mutex_release(&__global_death);
+  kmutex_release(&__global_death);
   return curr;
 }
 
 template <typename Amount>
 static inline uint64_t
-ink_atomic_increment(pvuint64 mem, Amount value)
+katomic_increment(pvuint64 mem, Amount value)
 {
   uint64_t curr;
-  ink_mutex_acquire(&__global_death);
+  kmutex_acquire(&__global_death);
   curr = *mem;
   *mem = curr + value;
-  ink_mutex_release(&__global_death);
+  kmutex_release(&__global_death);
   return curr;
 }
 
 template <typename Amount>
 static inline uint64_t
-ink_atomic_decrement(pvuint64 mem, Amount value)
+katomic_decrement(pvuint64 mem, Amount value)
 {
   uint64_t curr;
-  ink_mutex_acquire(&__global_death);
+  kmutex_acquire(&__global_death);
   curr = *mem;
   *mem = curr - value;
-  ink_mutex_release(&__global_death);
+  kmutex_release(&__global_death);
   return curr;
 }
 
 #endif /* Special hacks for ARM 32-bit */
 
 /* not used for Intel Processors which have sequential(esque) consistency */
-#define INK_WRITE_MEMORY_BARRIER
-#define INK_MEMORY_BARRIER
+#define KWRITE_MEMORY_BARRIER
+#define KMEMORY_BARRIER
 
 #else /* not gcc > v4.1.2 */
 #error Need a compiler / libc that supports atomic operations, e.g. gcc v4.1.2 or later
 #endif
 
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif //TEST_LOCK_KATOMIC_H
+#endif // TEST_LOCK_KATOMIC_H

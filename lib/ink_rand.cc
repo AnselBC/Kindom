@@ -54,8 +54,7 @@
    email: m-mat @ math.sci.hiroshima-u.ac.jp (remove spaces)
 */
 
-#include "ts/ink_platform.h"
-#include "ts/ink_rand.h"
+#include "ink_rand.h"
 
 #define NN 312
 #define MM 156
