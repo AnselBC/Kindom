@@ -48,6 +48,6 @@
 // typedef pthread_key_t kthread_key;
 
 // time interface
-typedef int64_t ktime;
+// typedef int64_t ktime;
 
 #endif // PROJECT_KINDOM_H

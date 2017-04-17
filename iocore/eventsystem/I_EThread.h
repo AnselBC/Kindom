@@ -49,6 +49,25 @@ public:
   Event *schedule(Event *e, bool fast_signal = false);
 
   char thread_private[PER_THREAD_DATA];
+
+    ProtectedQueue EventQueueExternal;
+    PriorityEventQueue EventQueue;
+
+    EThread **ethreads_to_be_signalled;
+    int n_ethreads_to_be_signalled;
+
+    int id;
+    unsigned int event_types;
+    bool is_event_type(EventType et);
+    void set_event_type(EventType et);
+
+    void execute();
+    void process_event(Event *e, int calling_code);
+    void free_event(Event *e);
+    void (*signal_hook)(EThread *);
+
+    ThreadType tt;
+    Event *oneevent; // For dedicated event thread
 };
 
 #endif

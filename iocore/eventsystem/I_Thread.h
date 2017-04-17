@@ -7,6 +7,7 @@
 
 #include <memory>
 #include "kthread.h"
+#include "khrtime.h"
 
 class Mutex;
 class Thread;
@@ -33,7 +34,7 @@ public:
   Thread();
 
   static ktime
-  get_time()
+  get_hrtime()
   {
     return cur_time;
   }
@@ -69,8 +70,22 @@ public:
   {
   }
 
+    static khrtime get_hrtime_updated();
+    static khrtime get_hrtime();
 private:
   const char *thr_name;
 };
+
+static inline khrtime
+Thread::get_hrtime()
+{
+    return cur_time;
+}
+
+static inline khrtime
+Thread::get_hrtime_updated()
+{
+    return cur_time = kget_hrtime_internal();
+}
 
 #endif // PROJECT_I_THREAD_H
