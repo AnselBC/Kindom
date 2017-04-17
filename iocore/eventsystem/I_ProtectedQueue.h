@@ -16,7 +16,7 @@ struct ProtectedQueue {
   void enqueue_local(Event *e); // Safe when called from the same thread
   void remove(Event *e);
   Event *dequeue_local();
-  void dequeue_timed(ktime cur_time, ktime timeout, bool sleep);
+  void dequeue_timed(khrtime cur_time, khrtime timeout, bool sleep);
 
   KAtomicList al;
   kmutex lock;

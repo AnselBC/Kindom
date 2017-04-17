@@ -149,7 +149,7 @@ squid_timestamp_to_buf(char *buf, unsigned int buf_size, long timestamp_sec, lon
   tmp_buf[tmp_buf_size - 5] = '.';
   int ms                    = timestamp_usec / 1000;
   unsigned int num_chars_ms;
-  char ATS_UNUSED *ts_ms = int64_to_str(&tmp_buf[tmp_buf_size - 4], 4, ms, &num_chars_ms, 4, '0');
+  char *ts_ms = int64_to_str(&tmp_buf[tmp_buf_size - 4], 4, ms, &num_chars_ms, 4, '0');
   kassert(ts_ms && num_chars_ms == 4);
 
   unsigned int chars_to_write = num_chars_s + 3; // no eos

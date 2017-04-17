@@ -9,8 +9,10 @@ aux_source_directory(. DIR_SRCS)
 add_library(tsutil STATIC 
 ink_rand.cc
 katomic.cc
+khrtime.cc
+kmutex.cc
 SourceLocation.cc
 )
 
-add_executable(test_atomic.out atomic_test.cc)
-target_link_libraries(test_atomic.out tsutil)
+#add_executable(test_atomic.out atomic_test.cc)
+#target_link_libraries(test_atomic.out tsutil)

@@ -27,13 +27,13 @@ public:
   static kthread_key thread_data_key;
 
   // Time
-  static ktime cur_time;
+  static khrtime cur_time;
 
   static void update_time(){};
 
   Thread();
 
-  static ktime
+  static khrtime
   get_hrtime()
   {
     return cur_time;
@@ -70,22 +70,16 @@ public:
   {
   }
 
-    static khrtime get_hrtime_updated();
-    static khrtime get_hrtime();
+  khrtime get_hrtime_updated();
+
 private:
   const char *thr_name;
 };
 
-static inline khrtime
-Thread::get_hrtime()
-{
-    return cur_time;
-}
-
-static inline khrtime
+inline khrtime
 Thread::get_hrtime_updated()
 {
-    return cur_time = kget_hrtime_internal();
+  return cur_time = kget_hrtime_internal();
 }
 
 #endif // PROJECT_I_THREAD_H

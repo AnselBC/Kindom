@@ -79,9 +79,9 @@ class Event : public Action
 {
 public:
   void schedule_imm(int callback_event = EVENT_IMMEDIATE);
-  void schedule_at(ktime atimeout_at, int callback_event = EVENT_INTERVAL);
-  void schedule_in(ktime atimeout_in, int callback_event = EVENT_INTERVAL);
-  void schedule_every(ktime aperiod, int callback_event = EVENT_INTERVAL);
+  void schedule_at(khrtime atimeout_at, int callback_event = EVENT_INTERVAL);
+  void schedule_in(khrtime atimeout_in, int callback_event = EVENT_INTERVAL);
+  void schedule_every(khrtime aperiod, int callback_event = EVENT_INTERVAL);
   void free();
   EThread *ethread;
 
@@ -92,8 +92,8 @@ public:
   unsigned int in_heap : 4;
   int callback_event;
 
-  ktime timeout_at;
-  ktime period;
+  khrtime timeout_at;
+  khrtime period;
 
   // Bound event specific data.
   void *cookie;
@@ -101,7 +101,7 @@ public:
   Event();
 
   Event *
-  init(Continuation *c, ktime atimeout_at = 0, ktime aperiod = 0)
+  init(Continuation *c, khrtime atimeout_at = 0, khrtime aperiod = 0)
   {
     continuation = c;
     timeout_at   = atimeout_at;

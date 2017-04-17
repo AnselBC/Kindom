@@ -7,9 +7,10 @@ thread_main(void *thread)
 {
   printf("thread start!!!\n");
   Thread *t = (Thread *)thread;
+  t->get_hrtime_updated();
   MUTEX_TRY_LOCK(lock, mutex, t);
   if (lock.is_locked()) {
-    printf("lock\n");
+    printf("lock %ld\n", t->get_hrtime());
   } else {
     printf("unlock\n");
   }

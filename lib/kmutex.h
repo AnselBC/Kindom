@@ -28,8 +28,6 @@ inline x_pthread_mutexattr_t::x_pthread_mutexattr_t()
 #endif
 }
 
-static x_pthread_mutexattr_t _g_mattr;
-
 extern class x_pthread_mutexattr_t _g_mattr;
 
 static inline int

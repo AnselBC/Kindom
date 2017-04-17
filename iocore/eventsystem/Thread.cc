@@ -6,7 +6,7 @@
 
 static kthread_key init_thread_key();
 
-ktime Thread::cur_time              = 0;
+khrtime Thread::cur_time            = 0;
 kthread_key Thread::thread_data_key = init_thread_key();
 
 kthread_key

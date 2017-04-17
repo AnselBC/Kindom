@@ -105,7 +105,7 @@ public:
   int nthread_holding;
 
 #ifdef DEBUG
-  ktime hold_time;
+  khrtime hold_time;
   SourceLocation srcloc;
   const char *handler;
   int taken;

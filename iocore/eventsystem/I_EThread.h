@@ -23,13 +23,13 @@ class EThread : public Thread
 public:
   Event *schedule_imm(Continuation *c, int callback_event = EVENT_IMMEDIATE, void *cookie = nullptr);
   Event *schedule_imm_signal(Continuation *c, int callback_event = EVENT_IMMEDIATE, void *cookie = nullptr);
-  Event *schedule_at(Continuation *c, ktime atimeout_at, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
-  Event *schedule_in(Continuation *c, ktime atimeout_in, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
-  Event *schedule_every(Continuation *c, ktime aperiod, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
+  Event *schedule_at(Continuation *c, khrtime atimeout_at, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
+  Event *schedule_in(Continuation *c, khrtime atimeout_in, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
+  Event *schedule_every(Continuation *c, khrtime aperiod, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
   Event *schedule_imm_local(Continuation *c, int callback_event = EVENT_IMMEDIATE, void *cookie = nullptr);
-  Event *schedule_at_local(Continuation *c, ktime atimeout_at, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
-  Event *schedule_in_local(Continuation *c, ktime atimeout_in, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
-  Event *schedule_every_local(Continuation *c, ktime aperiod, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
+  Event *schedule_at_local(Continuation *c, khrtime atimeout_at, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
+  Event *schedule_in_local(Continuation *c, khrtime atimeout_in, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
+  Event *schedule_every_local(Continuation *c, khrtime aperiod, int callback_event = EVENT_INTERVAL, void *cookie = nullptr);
   Event *schedule_local(Event *e);
 
   InkRand generator;
@@ -50,24 +50,24 @@ public:
 
   char thread_private[PER_THREAD_DATA];
 
-    ProtectedQueue EventQueueExternal;
-    PriorityEventQueue EventQueue;
+  ProtectedQueue EventQueueExternal;
+  //  PriorityEventQueue EventQueue;
 
-    EThread **ethreads_to_be_signalled;
-    int n_ethreads_to_be_signalled;
+  EThread **ethreads_to_be_signalled;
+  int n_ethreads_to_be_signalled;
 
-    int id;
-    unsigned int event_types;
-    bool is_event_type(EventType et);
-    void set_event_type(EventType et);
+  int id;
+  unsigned int event_types;
+  bool is_event_type(EventType et);
+  void set_event_type(EventType et);
 
-    void execute();
-    void process_event(Event *e, int calling_code);
-    void free_event(Event *e);
-    void (*signal_hook)(EThread *);
+  void execute();
+  void process_event(Event *e, int calling_code);
+  void free_event(Event *e);
+  void (*signal_hook)(EThread *);
 
-    ThreadType tt;
-    Event *oneevent; // For dedicated event thread
+  ThreadType tt;
+  Event *oneevent; // For dedicated event thread
 };
 
 #endif
