@@ -7,4 +7,6 @@
 
 #include "I_EventSystem.h"
 
+#include "P_ProtectedQueue.h"
+
 #endif // PROJECT_EVENTSYSTEM_H
