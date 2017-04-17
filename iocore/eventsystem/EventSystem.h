@@ -10,5 +10,6 @@
 #include "I_Mutex.h"
 #include "I_Continuation.h"
 #include "I_Action.h"
+#include "I_Event.h"
 
 #endif // PROJECT_EVENTSYSTEM_H

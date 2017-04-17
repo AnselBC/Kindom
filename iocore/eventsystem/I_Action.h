@@ -54,7 +54,7 @@ public:
   }
 
   Action() : continuation(nullptr), cancelled(false) {}
-  virtual ~Action() {}
+  virtual ~Action() { mutex = nullptr; }
 };
 
 #define ACTION_RESULT_NONE MAKE_ACTION_RESULT(0)
