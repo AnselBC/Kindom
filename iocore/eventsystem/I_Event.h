@@ -6,7 +6,7 @@
 #define TEST_LOCK_I_EVENT_H
 
 #include "I_Action.h"
-#include "I_EThread.h"
+#include "List.h"
 
 #define MAX_EVENTS_PER_THREAD 100000
 
@@ -80,9 +80,9 @@ class Event : public Action
 {
 public:
   void schedule_imm(int callback_event = EVENT_IMMEDIATE);
-  void schedule_at(ink_hrtime atimeout_at, int callback_event = EVENT_INTERVAL);
-  void schedule_in(ink_hrtime atimeout_in, int callback_event = EVENT_INTERVAL);
-  void schedule_every(ink_hrtime aperiod, int callback_event = EVENT_INTERVAL);
+  void schedule_at(ktime atimeout_at, int callback_event = EVENT_INTERVAL);
+  void schedule_in(ktime atimeout_in, int callback_event = EVENT_INTERVAL);
+  void schedule_every(ktime aperiod, int callback_event = EVENT_INTERVAL);
   void free();
   EThread *ethread;
 
@@ -102,7 +102,7 @@ public:
   Event();
 
   Event *
-  init(Continuation *c, ink_hrtime atimeout_at = 0, ink_hrtime aperiod = 0)
+  init(Continuation *c, ktime atimeout_at = 0, ktime aperiod = 0)
   {
     continuation = c;
     timeout_at   = atimeout_at;
@@ -120,7 +120,7 @@ private:
   Event &operator=(const Event &);
 
 public:
-  // LINK(Event, link);
+  LINK(Event, link);
   ~Event() { mutex = nullptr; }
 };
 

@@ -56,9 +56,10 @@
 
 #include <stdint.h>
 
-#include "ts/ink_assert.h"
-//#include "ts/ink_queue.h"
-//#include "ts/defalloc.h"
+#include "katomic.h"
+#include "Kindom.h"
+
+typedef int DefaultAlloc;
 
 //
 //      Link cell for singly-linked list of objects of type C.
@@ -144,20 +145,20 @@ template <class C> struct Link : public SLink<C> {
       return c->_m._f.prev;                  \
     }                                        \
   };
-#define LINK_FORWARD_DECLARATION(_c, _f)     \
+#define LKFORWARD_DECLARATION(_c, _f)        \
   class Link##_##_c##_##_f : public Link<_c> \
   {                                          \
   public:                                    \
     static _c *&next_link(_c *c);            \
     static _c *&prev_link(_c *c);            \
   };
-#define LINK_DEFINITION(_c, _f)                                           \
+#define LKDEFINITION(_c, _f)                                              \
   inline _c *&Link##_##_c##_##_f::next_link(_c *c) { return c->_f.next; } \
   inline _c *&Link##_##_c##_##_f::prev_link(_c *c) { return c->_f.prev; }
 //
 //      List descriptor for singly-linked list of objects of type C.
 //
-template <class C, class L = typename C::Link_link> class SLL
+template <class C, class L = typename C::Lklink> class SLL
 {
 public:
   C *head;
@@ -214,7 +215,7 @@ SLL<C, L>::pop()
 //
 //      List descriptor for doubly-linked list of objects of type C.
 //
-template <class C, class L = typename C::Link_link> struct DLL {
+template <class C, class L = typename C::Lklink> struct DLL {
   C *head;
   bool
   empty() const
@@ -320,7 +321,7 @@ DLL<C, L>::insert(C *e, C *after)
 //
 //      List descriptor for queue of objects of type C.
 //
-template <class C, class L = typename C::Link_link> class Queue : public DLL<C, L>
+template <class C, class L = typename C::Lklink> class Queue : public DLL<C, L>
 {
 public:
   using DLL<C, L>::head;
@@ -455,7 +456,7 @@ Queue<C, L>::dequeue()
 // Adds sorting, but requires that elements implement <
 //
 
-template <class C, class L = typename C::Link_link> struct SortableQueue : public Queue<C, L> {
+template <class C, class L = typename C::Lklink> struct SortableQueue : public Queue<C, L> {
   using DLL<C, L>::head;
   using Queue<C, L>::tail;
   void
@@ -506,7 +507,7 @@ template <class C, class L = typename C::Link_link> struct SortableQueue : publi
 // Adds counting to the Queue
 //
 
-template <class C, class L = typename C::Link_link> struct CountQueue : public Queue<C, L> {
+template <class C, class L = typename C::Lklink> struct CountQueue : public Queue<C, L> {
   int size;
   inline CountQueue(void) : size(0) {}
   inline void push(C *e);
@@ -686,26 +687,26 @@ List<C, A>::reverse()
 // Atomic lists
 //
 
-template <class C, class L = typename C::Link_link> struct AtomicSLL {
+template <class C, class L = typename C::Lklink> struct AtomicSLL {
   void
   push(C *c)
   {
-    ink_atomiclist_push(&al, c);
+    katomiclist_push(&al, c);
   }
   C *
   pop()
   {
-    return (C *)ink_atomiclist_pop(&al);
+    return (C *)katomiclist_pop(&al);
   }
   C *
   popall()
   {
-    return (C *)ink_atomiclist_popall(&al);
+    return (C *)katomiclist_popall(&al);
   }
   bool
   empty()
   {
-    return INK_ATOMICLIST_EMPTY(al);
+    return KATOMICLIST_EMPTY(al);
   }
 
   /*
@@ -717,7 +718,7 @@ template <class C, class L = typename C::Link_link> struct AtomicSLL {
   C *
   remove(C *c)
   {
-    return (C *)ink_atomiclist_remove(&al, c);
+    return (C *)katomiclist_remove(&al, c);
   }
   C *
   head()
@@ -730,7 +731,7 @@ template <class C, class L = typename C::Link_link> struct AtomicSLL {
     return (C *)TO_PTR(c);
   }
 
-  InkAtomicList al;
+  KAtomicList al;
 
   AtomicSLL();
 };
@@ -740,7 +741,7 @@ template <class C, class L = typename C::Link_link> struct AtomicSLL {
 
 template <class C, class L> inline AtomicSLL<C, L>::AtomicSLL()
 {
-  ink_atomiclist_init(&al, "AtomicSLL", (uint32_t)(uintptr_t)&L::next_link((C *)0));
+  katomiclist_init(&al, "AtomicSLL", (uint32_t)(uintptr_t)&L::next_link((C *)0));
 }
 
 #endif /*_List_h_*/

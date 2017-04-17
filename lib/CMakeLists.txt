@@ -12,3 +12,5 @@ katomic.cc
 SourceLocation.cc
 )
 
+add_executable(test_atomic.out atomic_test.cc)
+target_link_libraries(test_atomic.out tsutil)
