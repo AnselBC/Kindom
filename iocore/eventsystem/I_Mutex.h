@@ -5,10 +5,10 @@
 #ifndef PROJECT_I_MUTEX_H
 #define PROJECT_I_MUTEX_H
 
-#include "I_Thread.h"
 #include "SourceLocation.h"
 #include "kthread.h"
 #include "kmutex.h"
+#include "I_Thread.h"
 
 #ifdef DEBUG
 #define SCOPED_MUTEX_LOCK(_l, _m, _t) MutexLock _l(MakeSourceLocation(), nullptr, _m, _t)
@@ -94,14 +94,14 @@
 
 #define MUTEX_UNTAKE_LOCK(_m, _t) Mutex_unlock(_m, _t)
 
-class Thread;
-typedef Thread *ThreadPtr;
+class EThread;
+typedef EThread *EThreadPtr;
 
 class Mutex
 {
 public:
   kmutex mutex;
-  volatile ThreadPtr thread_holding;
+  volatile EThreadPtr thread_holding;
   int nthread_holding;
 
 #ifdef DEBUG
@@ -137,11 +137,11 @@ Mutex_trylock(
 #ifdef DEBUG
   const SourceLocation &location, const char *ahandler,
 #endif
-  Mutex *m, Thread *t)
+  Mutex *m, EThread *t)
 {
   kassert(t != nullptr);
   kassert(m != nullptr);
-  kassert(t == this_thread());
+	kassert(t == (EThread *)this_thread());
   if (m->thread_holding != t) {
     if (!kmutex_try_acquire(&m->mutex)) {
       return false;
@@ -162,11 +162,10 @@ Mutex_trylock_spin(
 #ifdef DEBUG
   const SourceLocation &location, const char *ahandler,
 #endif
-  Mutex *m, Thread *t, int spincnt = 1)
+  Mutex *m, EThread *t, int spincnt = 1)
 {
   kassert(t != nullptr);
   kassert(m != nullptr);
-  kassert(t == this_thread());
   if (m->thread_holding != t) {
     int locked;
     do {
@@ -192,11 +191,10 @@ Mutex_lock(
 #ifdef DEBUG
   const SourceLocation &location, const char *ahandler,
 #endif
-  Mutex *m, Thread *t)
+  Mutex *m, EThread *t)
 {
   kassert(t != nullptr);
   kassert(m != nullptr);
-  kassert(t == this_thread());
   if (m->thread_holding != t) {
     kmutex_acquire(&m->mutex);
     m->thread_holding = t;
@@ -211,13 +209,12 @@ Mutex_lock(
 }
 
 inline void
-Mutex_unlock(Mutex *m, Thread *t)
+Mutex_unlock(Mutex *m, EThread *t)
 {
   kassert(t != nullptr);
   kassert(m != nullptr);
 
   if (m->nthread_holding) {
-    kassert(t == this_thread());
     m->nthread_holding--;
     if (!m->nthread_holding) {
       kassert(m->thread_holding);
@@ -238,7 +235,7 @@ public:
 #ifdef DEBUG
     const SourceLocation &location, const char *ahandler,
 #endif
-    Mutex *am, Thread *t)
+    Mutex *am, EThread *t)
     : m(am), locked_p(true)
   {
     Mutex_lock(
@@ -252,7 +249,7 @@ public:
 #ifdef DEBUG
     const SourceLocation &location, const char *ahandler,
 #endif
-    std::shared_ptr<Mutex> &am, Thread *t)
+    std::shared_ptr<Mutex> &am, EThread *t)
     : m(am), locked_p(true)
   {
     Mutex_lock(
@@ -284,7 +281,7 @@ public:
 #ifdef DEBUG
     const SourceLocation &location, const char *ahandler,
 #endif
-    Mutex *am, Thread *t)
+    Mutex *am, EThread *t)
     : m(am)
   {
     lock_acquired = Mutex_trylock(
@@ -298,7 +295,7 @@ public:
 #ifdef DEBUG
     const SourceLocation &location, const char *ahandler,
 #endif
-    std::shared_ptr<Mutex> &am, Thread *t)
+    std::shared_ptr<Mutex> &am, EThread *t)
     : m(am)
   {
     lock_acquired = Mutex_trylock(
@@ -312,7 +309,7 @@ public:
 #ifdef DEBUG
     const SourceLocation &location, const char *ahandler,
 #endif
-    Mutex *am, Thread *t, int sp)
+    Mutex *am, EThread *t, int sp)
     : m(am)
   {
     lock_acquired = Mutex_trylock_spin(
@@ -326,7 +323,7 @@ public:
 #ifdef DEBUG
     const SourceLocation &location, const char *ahandler,
 #endif
-    std::shared_ptr<Mutex> &am, Thread *t, int sp)
+    std::shared_ptr<Mutex> &am, EThread *t, int sp)
     : m(am)
   {
     lock_acquired = Mutex_trylock_spin(
@@ -343,7 +340,7 @@ public:
   }
 
   void
-  acquire(Thread *t)
+  acquire(EThread *t)
   {
     MUTEX_TAKE_LOCK(m.get(), t);
     lock_acquired = true;

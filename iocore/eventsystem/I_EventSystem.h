@@ -7,6 +7,7 @@
 #include "I_Continuation.h"
 #include "I_EThread.h"
 #include "I_Event.h"
+#include "I_EventProcessor.h"
 
 #include "I_Mutex.h"
 #include "I_PriorityEventQueue.h"

@@ -23,6 +23,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(keventsystem STATIC 
+PQ-List.cc
+ProtectedQueue.cc
 Thread.cc
 )
 
