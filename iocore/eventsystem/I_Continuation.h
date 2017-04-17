@@ -7,28 +7,35 @@
 
 #include "I_Mutex.h"
 
+#define CONTINUATION_EVENT_NONE 0
+
+#define CONTINUATION_DONE 0
+#define CONTINUATION_CONT 1
+
 class Mutex;
+class Continuation;
 
 typedef int (Continuation::*ContinuationHandler)(int event, void *data);
 
 class Continuation
 {
-    ContinuationHandler handler;
+public:
+  ContinuationHandler handler;
 
 #ifdef DEBUG
-    const char *handler_name;
+  const char *handler_name;
 #endif
 
-    std::shared_ptr<Mutex> mutex;
+  std::shared_ptr<Mutex> mutex;
 
-    int
-    handleEvent(int event = CONTINUATION_EVENT_NONE, void *data = 0)
-    {
-        return (this->*handler)(event, data);
-    }
+  int
+  handleEvent(int event = CONTINUATION_EVENT_NONE, void *data = 0)
+  {
+    return (this->*handler)(event, data);
+  }
 
-    Continuation(Mutex *amutex = nullptr);
-    Continuation(std::shared_ptr<Mutex> &amutex);
+  Continuation(Mutex *amutex = nullptr);
+  Continuation(std::shared_ptr<Mutex> &amutex);
 };
 
 #ifdef DEBUG
@@ -44,21 +51,21 @@ class Continuation
 #endif
 
 inline Continuation::Continuation(std::shared_ptr<Mutex> &amutex)
-        : handler(nullptr),
+  : handler(nullptr),
 #ifdef DEBUG
-        handler_name(nullptr),
+    handler_name(nullptr),
 #endif
-          mutex(amutex)
+    mutex(amutex)
 {
 }
 
-inline Continuation::Continuation(ProxyMutex *amutex)
-        : handler(nullptr),
+inline Continuation::Continuation(Mutex *amutex)
+  : handler(nullptr),
 #ifdef DEBUG
-        handler_name(nullptr),
+    handler_name(nullptr),
 #endif
-          mutex(amutex)
+    mutex(amutex)
 {
 }
 
-#endif //TEST_LOCK_I_CONTINUATION_H
+#endif // TEST_LOCK_I_CONTINUATION_H

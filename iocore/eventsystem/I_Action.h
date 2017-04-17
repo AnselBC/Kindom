@@ -9,52 +9,52 @@
 
 class Action
 {
-    Continuation *continuation;
+public:
+  Continuation *continuation;
 
-    std::shared_ptr<Mutex> mutex;
+  std::shared_ptr<Mutex> mutex;
 
-    volatile int cancelled;
+  volatile int cancelled;
 
-    virtual void
-    cancel(Continuation *c = nullptr)
-    {
-        ink_assert(!c || c == continuation);
+  virtual void
+  cancel(Continuation *c = nullptr)
+  {
+    kassert(!c || c == continuation);
 #ifdef DEBUG
-        ink_assert(!cancelled);
-        cancelled = true;
+    kassert(!cancelled);
+    cancelled = true;
 #else
-        if (!cancelled)
+    if (!cancelled)
       cancelled = true;
 #endif
-    }
+  }
 
-    void
-    cancel_action(Continuation *c = nullptr)
-    {
-        ink_assert(!c || c == continuation);
+  void
+  cancel_action(Continuation *c = nullptr)
+  {
+    kassert(!c || c == continuation);
 #ifdef DEBUG
-        ink_assert(!cancelled);
-        cancelled = true;
+    kassert(!cancelled);
+    cancelled = true;
 #else
-        if (!cancelled)
+    if (!cancelled)
       cancelled = true;
 #endif
-    }
+  }
 
-    Continuation *
-    operator=(Continuation *acont)
-    {
-        continuation = acont;
-        if (acont)
-            mutex = acont->mutex;
-        else
-            mutex = 0;
-        return acont;
-    }
+  Continuation *
+  operator=(Continuation *acont)
+  {
+    continuation = acont;
+    if (acont)
+      mutex = acont->mutex;
+    else
+      mutex = 0;
+    return acont;
+  }
 
-    Action() : continuation(nullptr), cancelled(false) {}
-
-    virtual ~Action() {}
+  Action() : continuation(nullptr), cancelled(false) {}
+  virtual ~Action() {}
 };
 
 #define ACTION_RESULT_NONE MAKE_ACTION_RESULT(0)
@@ -68,5 +68,4 @@ class Action
 
 #define MAKE_ACTION_RESULT(_x) (Action *)(((uintptr_t)((_x << 1) + 1)))
 
-
-#endif //TEST_LOCK_I_ACTION_H
+#endif // TEST_LOCK_I_ACTION_H
