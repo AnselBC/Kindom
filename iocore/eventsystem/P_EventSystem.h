@@ -5,11 +5,6 @@
 #ifndef PROJECT_EVENTSYSTEM_H
 #define PROJECT_EVENTSYSTEM_H
 
-#include "Kindom.h"
-#include "I_EThread.h"
-#include "I_Mutex.h"
-#include "I_Continuation.h"
-#include "I_Action.h"
-#include "I_Event.h"
+#include "I_EventSystem.h"
 
 #endif // PROJECT_EVENTSYSTEM_H

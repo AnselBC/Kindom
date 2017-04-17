@@ -5,8 +5,9 @@
 #ifndef PROJECT_I_MUTEX_H
 #define PROJECT_I_MUTEX_H
 
-#include "EventSystem.h"
+#include "I_Thread.h"
 #include "SourceLocation.h"
+#include "kthread.h"
 #include "kmutex.h"
 
 #ifdef DEBUG
@@ -127,7 +128,7 @@ public:
   void
   init(const char *name = "UnnamedMutex")
   {
-    kmutex_init(&mutex, &_g_mattr.attr);
+    kmutex_init(&mutex, name);
   }
 };
 
@@ -197,7 +198,7 @@ Mutex_lock(
   kassert(m != nullptr);
   kassert(t == t->this_thread());
   if (m->thread_holding != t) {
-      kmutex_acquire(&m->mutex)
+      kmutex_acquire(&m->mutex);
     m->thread_holding = t;
 #ifdef DEBUG
     m->srcloc  = location;
@@ -221,7 +222,7 @@ Mutex_unlock(Mutex *m, Thread *t)
     if (!m->nthread_holding) {
       kassert(m->thread_holding);
       m->thread_holding = 0;
-        kmutex_release(&m->mutex)
+        kmutex_release(&m->mutex);
     }
   }
 }

@@ -2,9 +2,7 @@
 #ifndef TEST_LOCK_I_ETHREAD_H
 #define TEST_LOCK_I_ETHREAD_H
 
-#include "EventSystem.h"
 #include "I_Thread.h"
-#include "I_Event.h"
 #include "ink_rand.h"
 #include "I_ProtectedQueue.h"
 

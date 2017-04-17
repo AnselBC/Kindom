@@ -5,6 +5,7 @@
 #ifndef TEST_LOCK_I_ACTION_H
 #define TEST_LOCK_I_ACTION_H
 
+#include "I_Thread.h"
 #include "I_Continuation.h"
 
 class Action

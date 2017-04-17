@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 
-#if defined(POSIX_THREAD)
 #include <pthread.h>
 #include <stdlib.h>
 
@@ -80,5 +79,4 @@ kmutex_try_acquire(kmutex *m)
   return pthread_mutex_trylock(m) == 0;
 }
 
-#endif
 #endif //TEST_LOCK_KMUTEX_H

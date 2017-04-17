@@ -6,9 +6,10 @@
 #define PROJECT_I_THREAD_H
 
 #include <memory>
-#include "I_Thread.h"
+#include "kthread.h"
 
 class Mutex;
+class Thread;
 
 typedef void *(*ThreadFunction)(void *arg);
 
@@ -72,17 +73,6 @@ private:
   const char *thr_name;
 };
 
-static inline void
-kset_thread_name(const char *name)
-{
-  pthread_setname_np(pthread_self(), name);
-}
-
-static inline kthread_key
-init_thread_key()
-{
-  kassert(!pthread_key_create(&Thread::thread_data_key, nullptr));
-  return Thread::thread_data_key;
-}
+ 
 
 #endif // PROJECT_I_THREAD_H

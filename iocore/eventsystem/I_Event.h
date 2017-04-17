@@ -6,7 +6,6 @@
 #define TEST_LOCK_I_EVENT_H
 
 #include "I_Action.h"
-#include "List.h"
 
 #define MAX_EVENTS_PER_THREAD 100000
 

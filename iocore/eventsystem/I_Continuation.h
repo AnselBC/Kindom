@@ -6,6 +6,7 @@
 #define TEST_LOCK_I_CONTINUATION_H
 
 #include "I_Mutex.h"
+#include "List.h"
 
 #define CONTINUATION_EVENT_NONE 0
 

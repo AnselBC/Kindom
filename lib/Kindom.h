@@ -43,9 +43,9 @@
 
 // Thread interface
 #define MAX_THREAD_NAME 30
-typedef pthread_t kthread;
-typedef pthread_cond_t kcond;
-typedef pthread_key_t kthread_key;
+// typedef pthread_t kthread;
+// typedef pthread_cond_t kcond;
+// typedef pthread_key_t kthread_key;
 
 // time interface
 typedef int64_t ktime;
