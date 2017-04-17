@@ -73,6 +73,4 @@ private:
   const char *thr_name;
 };
 
- 
-
 #endif // PROJECT_I_THREAD_H

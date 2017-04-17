@@ -49,8 +49,6 @@ public:
   Event *schedule(Event *e, bool fast_signal = false);
 
   char thread_private[PER_THREAD_DATA];
-
-
 };
 
 #endif

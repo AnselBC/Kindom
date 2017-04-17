@@ -79,4 +79,4 @@ kmutex_try_acquire(kmutex *m)
   return pthread_mutex_trylock(m) == 0;
 }
 
-#endif //TEST_LOCK_KMUTEX_H
+#endif // TEST_LOCK_KMUTEX_H
