@@ -5,43 +5,51 @@
 #ifndef TEST_LOCK_P_IOBUFFER_H
 #define TEST_LOCK_P_IOBUFFER_H
 
+static const int DEFAULT_BUFFER_SIZE = 128;
+
+#include "kmemory.h"
+
 inline int64_t
 index_to_buffer_size(int64_t idx)
 {
-    if (BUFFER_SIZE_INDEX_IS_FAST_ALLOCATED(idx))
-        return BUFFER_SIZE_FOR_INDEX(idx);
-    else if (BUFFER_SIZE_INDEX_IS_XMALLOCED(idx))
-        return BUFFER_SIZE_FOR_XMALLOC(idx);
-// coverity[dead_error_condition]
-    else if (BUFFER_SIZE_INDEX_IS_CONSTANT(idx))
-        return BUFFER_SIZE_FOR_CONSTANT(idx);
-// coverity[dead_error_line]
-    return 0;
+  return idx * DEFAULT_BUFFER_SIZE;
 }
 
 inline int64_t
 IOBufferData::block_size()
 {
-    return index_to_buffer_size(_size_index);
+  return index_to_buffer_size(_size_index);
 }
 
 inline void
 IOBufferData::dealloc()
 {
-    kfree(data);
-    _data = 0;
-    _size_index = BUFFER_SIZE_NOT_ALLOCATED;
-    _mem_type   = NO_ALLOC;
+  kfree(_data);
+  _data       = 0;
+  _size_index = BUFFER_SIZE_NOT_ALLOCATED;
+  _mem_type   = NO_ALLOC;
 }
 
 inline void
 IOBufferData::alloc(int64_t size_index, AllocType type)
 {
-    if (_data)
-        dealloc();
-    _size_index = size_index;
-    _mem_type   = type;
-    _data = (char *)kmalloc(BUFFER_SIZE_FOR_XMALLOC(size_index));
+  if (_data)
+    dealloc();
+  _size_index = size_index;
+  _mem_type   = type;
+  _data       = (char *)kmalloc(size_index * DEFAULT_BUFFER_SIZE);
 }
 
-#endif //TEST_LOCK_P_IOBUFFER_H
+inline void
+IOBufferData::free()
+{
+  dealloc();
+  delete this;
+}
+
+inline IOBufferData::~IOBufferData()
+{
+  dealloc();
+}
+
+#endif // TEST_LOCK_P_IOBUFFER_H

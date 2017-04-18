@@ -27,50 +27,21 @@
 #include <string.h>
 #include <strings.h>
 #include <inttypes.h>
-
-#if HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#if HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
-
-#if HAVE_SYS_UIO_H
 #include <sys/uio.h>
-#endif
-
-#if HAVE_SYS_MMAN_H
 #include <sys/mman.h>
-#endif
-
-#if TS_HAS_JEMALLOC
-#include <jemalloc/jemalloc.h>
-#else
-#if HAVE_MALLOC_H
 #include <malloc.h>
-#endif // ! HAVE_MALLOC_H
-#endif // ! TS_HAS_JEMALLOC
 
-#ifndef MADV_NORMAL
 #define MADV_NORMAL 0
-#endif
 
-#ifndef MADV_RANDOM
 #define MADV_RANDOM 1
-#endif
 
-#ifndef MADV_SEQUENTIAL
 #define MADV_SEQUENTIAL 2
-#endif
 
-#ifndef MADV_WILLNEED
 #define MADV_WILLNEED 3
-#endif
 
-#ifndef MADV_DONTNEED
 #define MADV_DONTNEED 4
-#endif
 
 #ifdef __cplusplus
 extern "C" {

@@ -5,19 +5,17 @@
 #ifndef TEST_LOCK_I_IOBUFFER_H
 #define TEST_LOCK_I_IOBUFFER_H
 
-
-
 // extern int64_t max_iobuffer_size;
 // extern int64_t default_small_iobuffer_size;
 // extern int64_t default_large_iobuffer_size; // matched to size of OS buffers
 
 enum AllocType {
-    NO_ALLOC,
-    FAST_ALLOCATED,
-    XMALLOCED,
-    MEMALIGNED,
-    DEFAULT_ALLOC,
-    CONSTANT,
+  NO_ALLOC,
+  FAST_ALLOCATED,
+  XMALLOCED,
+  MEMALIGNED,
+  DEFAULT_ALLOC,
+  CONSTANT,
 };
 
 #define DEFAULT_BUFFER_NUMBER 128
@@ -51,101 +49,97 @@ enum AllocType {
 class IOBufferData
 {
 public:
-/**
-  The size of the memory allocated by this IOBufferData. Calculates
-  the amount of memory allocated by this IOBufferData.
+  /**
+    The size of the memory allocated by this IOBufferData. Calculates
+    the amount of memory allocated by this IOBufferData.
 
-  @return number of bytes allocated for the '_data' member.
+    @return number of bytes allocated for the '_data' member.
 
-*/
-    int64_t block_size();
-    /**
-  Frees the memory managed by this IOBufferData.  Deallocates the
-  memory previously allocated by this IOBufferData object. It frees
-  the memory pointed to by '_data' according to the '_mem_type' and
-  '_size_index' members.
-
-*/
-    void dealloc();
-
-    /**
-  Allocates memory and sets this IOBufferData to point to it.
-  Allocates memory according to the size_index and type
-  parameters. Any previously allocated memory pointed to by
-  this IOBufferData is deallocated.
-
-  @param size_index
-  @param type of allocation to use; see remarks section.
-*/
-    void alloc(int64_t size_index, AllocType type = DEFAULT_ALLOC);
-
-    /**
-  Provides access to the allocated memory. Returns the address of the
-  allocated memory handled by this IOBufferData.
-
-  @return address of the memory handled by this IOBufferData.
+  */
+  int64_t block_size();
+  /**
+Frees the memory managed by this IOBufferData.  Deallocates the
+memory previously allocated by this IOBufferData object. It frees
+the memory pointed to by '_data' according to the '_mem_type' and
+'_size_index' members.
 
 */
-    char *
-    data()
-    {
-        return _data;
-    }
+  void dealloc();
 
-    /**
-   Cast operator. Provided as a convenience, the cast to a char* applied
-   to the IOBufferData returns the address of the memory handled by the
-   IOBuffer data. In this manner, objects of this class can be used as
-   parameter to functions requiring a char*.
+  /**
+Allocates memory and sets this IOBufferData to point to it.
+Allocates memory according to the size_index and type
+parameters. Any previously allocated memory pointed to by
+this IOBufferData is deallocated.
 
- */
+@param size_index
+@param type of allocation to use; see remarks section.
+*/
+  void alloc(int64_t size_index, AllocType type = DEFAULT_ALLOC);
 
-    operator char *() { return _data; }
-    /**
-      Frees the IOBufferData object and its underlying memory. Deallocates
-      the memory managed by this IOBufferData and then frees itself. You
-      should not use this object or reference after this call.
+  /**
+Provides access to the allocated memory. Returns the address of the
+allocated memory handled by this IOBufferData.
 
-    */
-
-    /**
-  Frees the IOBufferData object and its underlying memory. Deallocates
-  the memory managed by this IOBufferData and then frees itself. You
-  should not use this object or reference after this call.
+@return address of the memory handled by this IOBufferData.
 
 */
-    virtual void free();
+  char *
+  data()
+  {
+    return _data;
+  }
 
-    int64_t _size_index;
-
-    /**
-  Type of allocation used for the managed memory. Stores the type of
-  allocation used for the memory currently managed by the IOBufferData
-  object. Do not set or modify this value directly. Instead use the
-  alloc or dealloc methods.
-
-*/
-    AllocType _mem_type;
-
-    /**
-  Points to the allocated memory. This member stores the address of
-  the allocated memory. You should not modify its value directly,
-  instead use the alloc or dealloc methods.
+  /**
+ Cast operator. Provided as a convenience, the cast to a char* applied
+ to the IOBufferData returns the address of the memory handled by the
+ IOBuffer data. In this manner, objects of this class can be used as
+ parameter to functions requiring a char*.
 
 */
-    char *_data;
 
+  operator char *() { return _data; }
+  /**
+    Frees the IOBufferData object and its underlying memory. Deallocates
+    the memory managed by this IOBufferData and then frees itself. You
+    should not use this object or reference after this call.
 
-    IOBufferData()
-            : _size_index(BUFFER_SIZE_NOT_ALLOCATED),
-              _mem_type(NO_ALLOC),
-              _data(nullptr)
-    {
-    }
+  */
+
+  /**
+Frees the IOBufferData object and its underlying memory. Deallocates
+the memory managed by this IOBufferData and then frees itself. You
+should not use this object or reference after this call.
+
+*/
+  virtual void free();
+
+  int64_t _size_index;
+
+  /**
+Type of allocation used for the managed memory. Stores the type of
+allocation used for the memory currently managed by the IOBufferData
+object. Do not set or modify this value directly. Instead use the
+alloc or dealloc methods.
+
+*/
+  AllocType _mem_type;
+
+  /**
+Points to the allocated memory. This member stores the address of
+the allocated memory. You should not modify its value directly,
+instead use the alloc or dealloc methods.
+
+*/
+  char *_data;
+
+  IOBufferData() : _size_index(BUFFER_SIZE_NOT_ALLOCATED), _mem_type(NO_ALLOC), _data(nullptr) {}
+  ~IOBufferData();
+
 private:
-    // declaration only
-    IOBufferData(const IOBufferData &);
-    IOBufferData &operator=(const IOBufferData &);
+  // declaration only
+  IOBufferData(const IOBufferData &);
+  IOBufferData &operator=(const IOBufferData &);
 };
 
-#endif //TEST_LOCK_I_IOBUFFER_H
+#endif // TEST_LOCK_I_IOBUFFER_H

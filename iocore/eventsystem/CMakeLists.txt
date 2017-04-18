@@ -22,7 +22,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../lib
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(keventsystem SHARED 
+add_library(keventsystem STATIC 
 EThread.cc
 EventProcessor.cc
 PQ-List.cc
@@ -38,6 +38,8 @@ AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 add_executable(test_thread.out thread_test.cc)
 add_executable(test_action.out action_test.cc)
 add_executable(test_processor.out processor_test.cc) 
+add_executable(test_iobuffer.out iobuffer_test.cc) 
 target_link_libraries(test_thread.out keventsystem)
 target_link_libraries(test_action.out keventsystem)
 target_link_libraries(test_processor.out keventsystem)
+target_link_libraries(test_iobuffer.out keventsystem)
