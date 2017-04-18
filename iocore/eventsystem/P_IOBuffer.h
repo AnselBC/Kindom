@@ -10,10 +10,11 @@ static const int DEFAULT_BUFFER_SIZE = 128;
 #include "kmemory.h"
 
 inline int64_t
-IOBufferData::block_size()
+index_to_buffer_size(int64_t idx)
 {
-    return index_to_buffer_size(_size_index);
+  return idx * DEFAULT_BUFFER_SIZE;
 }
+
 
 ///////////////////////////////////
 ////   IOBufferBlock
@@ -30,7 +31,7 @@ inline void
 IOBufferBlock::fill(int64_t len)
 {
     _end += len;
-    ink_assert(_end <= _buf_end);
+    kassert(_end <= _buf_end);
 }
 
 inline void
@@ -64,7 +65,7 @@ IOBufferBlock::clear()
         p = n;
     }
 
-    next.get().data = nullptr;
+    next.get()->data = nullptr;
 
     _buf_end = _end = _start = nullptr;
 }
@@ -93,7 +94,7 @@ IOBufferBlock::dealloc()
 inline void
 IOBufferBlock::set(IOBufferData *d, int64_t len, int64_t offset)
 {
-    data = d;
+    *data = *d;
     _start   = buf() + offset;
     _end     = _start + len;
     _buf_end = buf() + d->block_size();
@@ -134,9 +135,9 @@ IOBufferBlock::realloc(int64_t i)
         return;
     }
 
-    ink_release_assert(i > data->_size_index && i != BUFFER_SIZE_NOT_ALLOCATED);
-    void *b = kmelloc(index_to_buffer_size(i));
-    realloc_set_internal(b, BUFFER_SIZE_FOR_INDEX(i), i);
+    krelease_assert(i > data->_size_index && i != BUFFER_SIZE_NOT_ALLOCATED);
+    void *b = kmalloc(index_to_buffer_size(i));
+    realloc_set_internal(b, index_to_buffer_size(i), i);
 }
 
 
@@ -144,6 +145,11 @@ IOBufferBlock::realloc(int64_t i)
 ////   IOBufferData
 ///////////////////////////////////
 
+inline int64_t
+IOBufferData::block_size()
+{
+    return index_to_buffer_size(_size_index);
+}
 
 inline void
 IOBufferData::dealloc()

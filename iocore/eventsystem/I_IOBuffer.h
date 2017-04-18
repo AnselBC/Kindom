@@ -4,6 +4,9 @@
 
 #ifndef TEST_LOCK_I_IOBUFFER_H
 #define TEST_LOCK_I_IOBUFFER_H
+#include <memory>
+
+using namespace std;
 
 // extern int64_t max_iobuffer_size;
 // extern int64_t default_small_iobuffer_size;
@@ -142,7 +145,7 @@ instead use the alloc or dealloc methods.
 private:
   // declaration only
   IOBufferData(const IOBufferData &);
-  IOBufferData &operator=(const IOBufferData &);
+  // IOBufferData &operator=(const IOBufferData &);
 };
 
 class IOBufferBlock
@@ -206,7 +209,7 @@ public:
 
     void clear();
 
-    void alloc(int64_t i = default_large_iobuffer_size);
+    void alloc(int64_t i = DEFAULT_BUFFER_SIZES);
 
     void dealloc();
 
