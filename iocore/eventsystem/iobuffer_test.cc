@@ -9,4 +9,5 @@ main()
   data->dealloc();
 
   MIOBuffer *mbuf = new MIOBuffer();
+	mbuf->add_block();	
 }

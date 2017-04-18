@@ -340,6 +340,21 @@ inline MIOBuffer::~MIOBuffer()
 }
 
 inline void
+MIOBuffer::append_block(int64_t asize_index)
+{
+	IOBufferBlock *b = new IOBufferBlock();
+  b->alloc(asize_index);
+  append_block_internal(b);
+  return;
+}
+
+inline void
+MIOBuffer::add_block()
+{
+  append_block(size_index);
+}
+
+inline void
 MIOBuffer::append_block_internal(IOBufferBlock *b)
 {
   // It would be nice to remove an empty buffer at the beginning,
