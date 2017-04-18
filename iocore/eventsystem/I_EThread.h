@@ -13,8 +13,6 @@
 class Event;
 class Continuation;
 
-
-
 enum ThreadType {
   REGULAR = 0,
   MONITOR,
@@ -47,7 +45,7 @@ public:
   EThread(ThreadType att, int anid);
   EThread(ThreadType att, Event *e);
 
-  virtual ~EThread(); 
+  virtual ~EThread();
   Event *schedule_spawn(Continuation *cont);
   Event *schedule(Event *e, bool fast_signal = false);
 
@@ -68,6 +66,12 @@ public:
   void process_event(Event *e, int calling_code);
   void free_event(Event *e);
   void (*signal_hook)(EThread *);
+
+#if HAVE_EVENTFD
+  int evfd;
+#else
+  int evpipe[2];
+#endif
 
   ThreadType tt;
   Event *oneevent; // For dedicated event thread

@@ -8,4 +8,4 @@
 #define KMIN_ALIGN 8
 #define KALIGN(size, boundary) (((size) + ((boundary)-1)) & ~((boundary)-1))
 
-#endif //TEST_LOCK_KALIGN_H
+#endif // TEST_LOCK_KALIGN_H

@@ -3,7 +3,7 @@
 //
 
 #include "P_EventSystem.h"
-
+#include "kmemory.h"
 #include <sys/eventfd.h>
 
 #define MAX_HEARTBEATS_MISSED 10
@@ -39,12 +39,47 @@ EThread::EThread(ThreadType att, Event *e)
   memset(thread_private, 0, PER_THREAD_DATA);
 }
 
+EThread::EThread(ThreadType att, int anid)
+  : generator((uint64_t)Thread::get_hrtime_updated() ^ (uint64_t)(uintptr_t)this),
+    ethreads_to_be_signalled(nullptr),
+    n_ethreads_to_be_signalled(0),
+    id(anid),
+    event_types(0),
+    signal_hook(nullptr),
+    tt(att)
+{
+  ethreads_to_be_signalled = (EThread **)kmalloc(MAX_EVENT_THREADS * sizeof(EThread *));
+  memset((char *)ethreads_to_be_signalled, 0, MAX_EVENT_THREADS * sizeof(EThread *));
+  memset(thread_private, 0, PER_THREAD_DATA);
+#if HAVE_EVENTFD
+  evfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  if (evfd < 0) {
+    if (errno == EINVAL) { // flags invalid for kernel <= 2.6.26
+      evfd = eventfd(0, 0);
+      if (evfd < 0)
+        Fatal("EThread::EThread: %d=eventfd(0,0),errno(%d)", evfd, errno);
+    } else
+      Fatal("EThread::EThread: %d=eventfd(0,EFD_NONBLOCK | EFD_CLOEXEC),errno(%d)", evfd, errno);
+  }
+#elif TS_USE_PORT
+/* Solaris ports requires no crutches to do cross thread signaling.
+ * We'll just port_send the event straight over the port.
+ */
+#else
+  krelease_assert(pipe(evpipe) >= 0);
+  fcntl(evpipe[0], F_SETFD, FD_CLOEXEC);
+  fcntl(evpipe[0], F_SETFL, O_NONBLOCK);
+  fcntl(evpipe[1], F_SETFD, FD_CLOEXEC);
+  fcntl(evpipe[1], F_SETFL, O_NONBLOCK);
+#endif
+}
+
 EThread::~EThread()
 {
   if (n_ethreads_to_be_signalled > 0)
     flush_signals(this);
   kfree(ethreads_to_be_signalled);
-	mutex = nullptr;
+  mutex = nullptr;
   // TODO: This can't be deleted ....
   // delete[]l1_hash;
 }

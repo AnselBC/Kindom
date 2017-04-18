@@ -113,7 +113,7 @@ kalloc_hugepage(size_t s)
   size_t size;
   void *mem;
 
-  size = INK_ALIGN(s, khugepage_size());
+  size = KALIGN(s, khugepage_size());
 
   mem = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
 
@@ -137,7 +137,7 @@ kfree_hugepage(void *ptr, size_t s)
 #ifdef MAP_HUGETLB
   size_t size;
 
-  size = INK_ALIGN(s, khugepage_size());
+  size = KALIGN(s, khugepage_size());
   return (munmap(ptr, size) == 0);
 #else
   (void)ptr;

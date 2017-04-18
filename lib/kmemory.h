@@ -28,8 +28,6 @@
 #include <strings.h>
 #include <inttypes.h>
 
-
-
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -244,7 +242,7 @@ class kscoped_resource
 public:
   typedef TRAITS Traits;                          ///< Make template arg available.
   typedef typename TRAITS::value_type value_type; ///< Import value type.
-  typedef kscoped_resource self;               ///< Self reference type.
+  typedef kscoped_resource self;                  ///< Self reference type.
 
 public:
   /// Default constructor - an empty container.
@@ -329,7 +327,7 @@ protected:
   value_type _r; ///< Resource.
 private:
   kscoped_resource(self const &); ///< Copy constructor not permitted.
-  self &operator=(self const &);     ///< Self assignment not permitted.
+  self &operator=(self const &);  ///< Self assignment not permitted.
 };
 
 namespace detail

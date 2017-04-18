@@ -24,7 +24,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 
 add_library(keventsystem SHARED 
 EThread.cc
+EventProcessor.cc
 PQ-List.cc
+Processor.cc
 ProtectedQueue.cc
 Thread.cc
 )

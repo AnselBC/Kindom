@@ -164,7 +164,7 @@ Mutex_trylock(
 #endif
   std::shared_ptr<Mutex> &m, EThread *t)
 {
-	return Mutex_trylock(
+  return Mutex_trylock(
 #ifdef DEBUG
     location, ahandler,
 #endif
@@ -207,7 +207,7 @@ Mutex_trylock_spin(
 #endif
   std::shared_ptr<Mutex> &m, EThread *t, int spincnt = 1)
 {
-	return Mutex_trylock_spin(
+  return Mutex_trylock_spin(
 #ifdef DEBUG
     location, ahandler,
 #endif

@@ -117,4 +117,7 @@
 #endif
 #endif
 
+#define HAVE_POSIX_MEMALIGN 1
+#define HAVE_EVENTFD 1
+
 #endif // PROJECT_KINDOM_H

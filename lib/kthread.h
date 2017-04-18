@@ -7,6 +7,9 @@
 
 #include "kmutex.h"
 
+#define KMUTEX_INIT PTHREAD_MUTEX_INITIALIZER
+#define KTHREAD_STACK_MIN PTHREAD_STACK_MIN
+
 typedef struct timespec ktimestruc;
 
 typedef pthread_t kthread;

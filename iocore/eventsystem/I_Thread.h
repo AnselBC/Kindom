@@ -14,7 +14,8 @@ class Thread;
 
 typedef void *(*ThreadFunction)(void *arg);
 
-static const int DEFAULT_STACKSIZE = 1048576; // 1MB
+static const int DEFAULT_STACKSIZE      = 1048576; // 1MB
+static const int MAX_THREAD_NAME_LENGTH = 16;
 
 class Thread
 {
@@ -39,8 +40,7 @@ public:
     return cur_time;
   }
 
-  void
-  set_specific();
+  void set_specific();
 
   const char *
   get_thread_name()
@@ -63,7 +63,7 @@ public:
 
   static khrtime get_hrtime_updated();
 
-	~Thread();
+  ~Thread();
 
 private:
   const char *thr_name;
