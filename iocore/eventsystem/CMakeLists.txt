@@ -25,6 +25,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 add_library(keventsystem STATIC 
 EThread.cc
 EventProcessor.cc
+IOBuffer.cc
 PQ-List.cc
 Processor.cc
 ProtectedQueue.cc
