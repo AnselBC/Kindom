@@ -177,4 +177,322 @@ IOBufferData::free()
   delete this;
 }
 
+///////////////////////////////////
+////   IOBufferReader
+///////////////////////////////////
+
+inline void
+IOBufferReader::skip_empty_blocks()
+{
+    while (block->next && block->next->read_avail() && start_offset >= block->size()) {
+        start_offset -= block->size();
+        block = block->next;
+    }
+}
+
+inline char *
+IOBufferReader::start()
+{
+    if (!block) {
+        return 0;
+    }
+
+    skip_empty_blocks();
+    return block->start() + start_offset;
+}
+
+inline char *
+IOBufferReader::end()
+{
+    if (!block) {
+        return 0;
+    }
+
+    skip_empty_blocks();
+    return block->end();
+}
+
+inline int64_t
+IOBufferReader::read_avail()
+{
+    int64_t t        = 0;
+    IOBufferBlock *b = block.get();
+
+    while (b) {
+        t += b->read_avail();
+        b = b->next.get();
+    }
+
+    t -= start_offset;
+    if (size_limit != INT64_MAX && t > size_limit) {
+        t = size_limit;
+    }
+
+    return t;
+}
+
+inline bool
+IOBufferReader::is_read_avail_more_than(int64_t size)
+{
+    int64_t t        = -start_offset;
+    IOBufferBlock *b = block.get();
+
+    while (b) {
+        t += b->read_avail();
+        if (t > size) {
+            return true;
+        }
+        b = b->next.get();
+    }
+    return false;
+}
+
+inline void
+IOBufferReader::consume(int64_t n)
+{
+    start_offset += n;
+    if (size_limit != INT64_MAX) {
+        size_limit -= n;
+    }
+
+    kassert(size_limit >= 0);
+    if (!block) {
+        return;
+    }
+
+    int64_t r = block->read_avail();
+    int64_t s = start_offset;
+    while (r <= s && block->next && block->next->read_avail()) {
+        s -= r;
+        start_offset = s;
+        block        = block->next;
+        r            = block->read_avail();
+    }
+}
+
+inline char &IOBufferReader::operator[](int64_t i)
+{
+    static char default_ret = '\0'; // This is just to avoid compiler warnings...
+    IOBufferBlock *b        = block.get();
+
+    i += start_offset;
+    while (b) {
+        int64_t bytes = b->read_avail();
+        if (bytes > i)
+            return b->start()[i];
+        i -= bytes;
+        b = b->next.get();
+    }
+
+    krelease_assert(!"out of range");
+    // Never used, just to satisfy compilers not undersatnding the fatality of krelease_assert().
+    return default_ret;
+}
+
+inline void
+IOBufferReader::clear()
+{
+    accessor     = nullptr;
+    block        = nullptr;
+    mbuf         = nullptr;
+    start_offset = 0;
+    size_limit   = INT64_MAX;
+}
+
+inline void
+IOBufferReader::reset()
+{
+    block        = mbuf->_writer;
+    start_offset = 0;
+    size_limit   = INT64_MAX;
+}
+
+///////////////////////////////////
+////   MIOBuffer
+///////////////////////////////////
+
+inline int64_t
+MIOBuffer::write_avail()
+{
+    check_add_block();
+    return current_write_avail();
+}
+
+inline void
+MIOBuffer::fill(int64_t len)
+{
+    int64_t f = _writer->write_avail();
+    while (f < len) {
+        _writer->fill(f);
+        len -= f;
+        if (len > 0)
+            _writer = _writer->next;
+        f         = _writer->write_avail();
+    }
+    _writer->fill(len);
+}
+
+inline int
+MIOBuffer::max_block_count()
+{
+    int maxb = 0;
+    for (int i = 0; i < MAX_MIOBUFFER_READERS; i++) {
+        if (readers[i].allocated()) {
+            int c = readers[i].block_count();
+            if (c > maxb) {
+                maxb = c;
+            }
+        }
+    }
+    return maxb;
+}
+
+inline int64_t
+MIOBuffer::max_read_avail()
+{
+    int64_t s = 0;
+    int found = 0;
+    for (int i = 0; i < MAX_MIOBUFFER_READERS; i++) {
+        if (readers[i].allocated()) {
+            int64_t ss = readers[i].read_avail();
+            if (ss > s) {
+                s = ss;
+            }
+            found = 1;
+        }
+    }
+    if (!found && _writer)
+        return _writer->read_avail();
+    return s;
+}
+
+inline void
+MIOBuffer::set(void *b, int64_t len)
+{
+    std::shared_ptr<IOBufferBlock> tmp(new IOBufferBlock());
+    _writer = tmp;
+    _writer->set_internal(b, len, len + DEFAULT_BUFFER_SIZES);
+    init_readers();
+}
+
+inline void
+MIOBuffer::set_xmalloced(void *b, int64_t len)
+{
+    std::shared_ptr<IOBufferBlock> tmp(new IOBufferBlock());
+    _writer = tmp;
+    _writer->set_internal(b, len, len + DEFAULT_BUFFER_SIZES);
+    init_readers();
+}
+
+inline void
+MIOBuffer::append_xmalloced(void *b, int64_t len)
+{
+    std::shared_ptr<IOBufferBlock> tmp(new IOBufferBlock());
+    x = tmp;
+    x->set_internal(b, len, len + DEFAULT_BUFFER_SIZES);
+    append_block_internal(x);
+}
+
+inline void
+MIOBuffer::append_fast_allocated(void *b, int64_t len, int64_t fast_size_index)
+{
+    std::shared_ptr<IOBufferBlock> tmp(new IOBufferBlock());
+    x = tmp;
+    x->set_internal(b, len, len + DEFAULT_BUFFER_SIZES);
+    append_block_internal(x);
+}
+
+inline void
+MIOBuffer::alloc(int64_t i)
+{
+    std::shared_ptr<IOBufferBlock> tmp(new IOBufferBlock());
+    _writer = tmp;
+    _writer->alloc(i);
+    size_index = i;
+    init_readers();
+}
+
+inline void
+MIOBuffer::alloc_xmalloc(int64_t buf_size)
+{
+    char *b = (char *)kmalloc(buf_size);
+    set_xmalloced(b, buf_size);
+}
+
+inline void
+MIOBuffer::dealloc_reader(IOBufferReader *e)
+{
+    if (e->accessor) {
+        kassert(e->accessor->writer() == this);
+        kassert(e->accessor->reader() == e);
+        e->accessor->clear();
+    }
+    e->clear();
+
+}
+
+inline IOBufferReader *
+IOBufferReader::clone()
+{
+    return mbuf->clone_reader(this);
+}
+
+inline void
+IOBufferReader::dealloc()
+{
+    mbuf->dealloc_reader(this);
+}
+
+inline void
+MIOBuffer::dealloc_all_readers()
+{
+    for (int i = 0; i < MAX_MIOBUFFER_READERS; i++)
+        if (readers[i].allocated())
+            dealloc_reader(&readers[i]);
+}
+
+inline void
+MIOBuffer::set_size_index(int64_t size)
+{
+    // size_index = iobuffer_size_to_index(size);
+}
+
+///////////////////////////////////
+////   MIOBufferAccessor
+///////////////////////////////////
+
+inline void
+MIOBufferAccessor::reader_for(MIOBuffer *abuf)
+{
+    mbuf = abuf;
+    if (abuf)
+        entry = mbuf->alloc_accessor(this);
+    else
+        entry = nullptr;
+}
+
+inline void
+MIOBufferAccessor::reader_for(IOBufferReader *areader)
+{
+    if (entry == areader)
+        return;
+    mbuf  = areader->mbuf;
+    entry = areader;
+    kassert(mbuf);
+}
+
+inline void
+MIOBufferAccessor::writer_for(MIOBuffer *abuf)
+{
+    mbuf  = abuf;
+    entry = nullptr;
+}
+
+inline
+MIOBufferAccessor::~MIOBufferAccessor()
+{
+}
+
+
+
 #endif // TEST_LOCK_P_IOBUFFER_H
