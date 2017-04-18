@@ -3,11 +3,11 @@
 int
 main()
 {
-  IOBufferData *data = new IOBufferData();
-  data->alloc(MAX_BUFFER_SIZE_INDEX);
+  IOBufferData *data = new IOBufferData(MAX_BUFFER_SIZE_INDEX);
   data->block_size();
   data->dealloc();
 
-  MIOBuffer *mbuf = new MIOBuffer();
-	mbuf->add_block();	
+  MIOBuffer *mbuf = new MIOBuffer(MAX_BUFFER_SIZE_INDEX);
+  mbuf->add_block();
+  IOBufferReader *reader = mbuf->alloc_reader();
 }

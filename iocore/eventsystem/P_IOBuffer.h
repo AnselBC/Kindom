@@ -329,8 +329,9 @@ inline MIOBuffer::MIOBuffer()
 
 inline MIOBuffer::MIOBuffer(int64_t default_size_index)
 {
-  size_index = default_size_index;
   clear();
+  size_index = default_size_index;
+  this->alloc(default_size_index);
 }
 
 inline MIOBuffer::~MIOBuffer()
@@ -339,10 +340,29 @@ inline MIOBuffer::~MIOBuffer()
   dealloc_all_readers();
 }
 
+inline IOBufferReader *
+MIOBuffer::alloc_reader()
+{
+  int i;
+  for (i = 0; i < MAX_MIOBUFFER_READERS; i++)
+    if (!readers[i].allocated())
+      break;
+
+  // TODO refactor code to return nullptr at some point
+  krelease_assert(i < MAX_MIOBUFFER_READERS);
+
+  IOBufferReader *e = &readers[i];
+  e->mbuf           = this;
+  e->reset();
+  e->accessor = nullptr;
+
+  return e;
+}
+
 inline void
 MIOBuffer::append_block(int64_t asize_index)
 {
-	IOBufferBlock *b = new IOBufferBlock();
+  IOBufferBlock *b = new IOBufferBlock();
   b->alloc(asize_index);
   append_block_internal(b);
   return;
