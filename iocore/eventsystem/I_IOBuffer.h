@@ -142,7 +142,7 @@ instead use the alloc or dealloc methods.
   char *_data;
 
   IOBufferData() : _size_index(BUFFER_SIZE_NOT_ALLOCATED), _mem_type(NO_ALLOC), _data(nullptr) {}
-  IOBufferData(int64_t i) { alloc(i); }
+  IOBufferData(int64_t i) : _size_index(BUFFER_SIZE_NOT_ALLOCATED), _mem_type(NO_ALLOC), _data(nullptr) { alloc(i); }
   IOBufferData(const IOBufferData *d) : _size_index(BUFFER_SIZE_NOT_ALLOCATED), _mem_type(NO_ALLOC), _data(nullptr) {}
   ~IOBufferData()
   {
@@ -246,7 +246,7 @@ public:
     data = nullptr;
     next = nullptr;
   }
-  IOBufferBlock(const IOBufferBlock *) : _start(0), _end(0), _buf_end(0) {}
+  //  IOBufferBlock(const IOBufferBlock *) : _start(0), _end(0), _buf_end(0) {}
 private:
   IOBufferBlock(const IOBufferBlock &);
   IOBufferBlock &operator=(const IOBufferBlock &);
@@ -438,7 +438,7 @@ public:
   clear()
   {
     dealloc();
-    size_index = BUFFER_SIZE_NOT_ALLOCATED;
+    size_index = DEFAULT_BUFFER_SIZES;
     water_mark = 0;
   }
 

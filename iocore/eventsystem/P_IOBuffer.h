@@ -100,7 +100,7 @@ IOBufferBlock::dealloc()
 inline void
 IOBufferBlock::set(IOBufferData *d, int64_t len, int64_t offset)
 {
-  data     = std::make_shared<IOBufferData>(d);
+  data     = std::shared_ptr<IOBufferData>(d);
   _start   = buf() + offset;
   _end     = _start + len;
   _buf_end = buf() + d->block_size();
@@ -406,13 +406,13 @@ MIOBuffer::append_block_internal(IOBufferBlock *b)
   // but this breaks HTTP.
   // if (!_writer || !_writer->read_avail())
   if (!_writer) {
-    _writer = std::make_shared<IOBufferBlock>(b);
+    _writer = std::shared_ptr<IOBufferBlock>(b);
     init_readers();
   } else {
     kassert(!_writer->next || !_writer->next->read_avail());
-    _writer->next = std::make_shared<IOBufferBlock>(b);
+    _writer->next = std::shared_ptr<IOBufferBlock>(b);
     while (b->read_avail()) {
-      _writer = std::make_shared<IOBufferBlock>(b);
+      _writer = std::shared_ptr<IOBufferBlock>(b);
       b       = b->next.get();
       if (!b)
         break;
