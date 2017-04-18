@@ -3,6 +3,7 @@
 //
 
 #include "P_EventSystem.h"
+#include "kmemory.h"
 
 static kthread_key init_thread_key();
 

@@ -68,8 +68,8 @@
 #define DEBUG 1
 
 // mem interface
-#define kmalloc malloc
-#define kfree free
+// #define kmalloc malloc
+// #define kfree free
 
 // Log interface
 #define Debug(_f, ...) \
@@ -90,6 +90,7 @@
   } while (0)
 
 #define kassert assert
+#define krelease_assert assert
 
 // Thread interface
 #define MAX_THREAD_NAME 30
