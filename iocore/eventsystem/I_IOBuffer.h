@@ -8,6 +8,11 @@
 
 using namespace std;
 
+struct MIOBufferAccessor;
+
+class MIOBuffer;
+class IOBufferReader;
+
 // extern int64_t max_iobuffer_size;
 // extern int64_t default_small_iobuffer_size;
 // extern int64_t default_large_iobuffer_size; // matched to size of OS buffers
@@ -138,11 +143,13 @@ instead use the alloc or dealloc methods.
 
   IOBufferData() : _size_index(BUFFER_SIZE_NOT_ALLOCATED), _mem_type(NO_ALLOC), _data(nullptr) {}
   IOBufferData(int64_t i) { alloc(i); }
-    ~IOBufferData()
-    {
-        if (_data)
-            dealloc();
-    }
+  IOBufferData(const IOBufferData *d) : _size_index(BUFFER_SIZE_NOT_ALLOCATED), _mem_type(NO_ALLOC), _data(nullptr) {}
+  ~IOBufferData()
+  {
+    if (_data)
+      dealloc();
+  }
+
 private:
   // declaration only
   IOBufferData(const IOBufferData &);
@@ -230,302 +237,304 @@ public:
 
   std::shared_ptr<IOBufferData> data;
   std::shared_ptr<IOBufferBlock> next;
-  IOBufferBlock() : _start(0), _end(0), _buf_end(0) {}
-    ~IOBufferBlock()
-    {
-        if (data != nullptr)
-            dealloc();
-    }
+  IOBufferBlock();
 
+  ~IOBufferBlock()
+  {
+    if (data != nullptr)
+      dealloc();
+  }
+  IOBufferBlock(const IOBufferBlock *) : _start(0), _end(0), _buf_end(0) {}
 private:
   IOBufferBlock(const IOBufferBlock &);
   IOBufferBlock &operator=(const IOBufferBlock &);
 };
 
-class IOBufferReader {
+class IOBufferReader
+{
 public:
-    char *start();
-    char *end();
-    int64_t read_avail();
-    bool is_read_avail_more_than(int64_t size);
-    int block_count();
-    int64_t block_read_avail();
-    void skip_empty_blocks();
-    void clear();
-    void reset();
-    void consume(int64_t n);
-    IOBufferReader *clone();
-    void dealloc();
-    IOBufferBlock *get_current_block();
-    bool current_low_water();
-    bool low_water();
-    bool high_water();
-    int64_t memchr(char c, int64_t len = INT64_MAX, int64_t offset = 0);
-    int64_t read(void *buf, int64_t len);
-    char *memcpy(const void *buf, int64_t len = INT64_MAX, int64_t offset = 0);
+  char *start();
+  char *end();
+  int64_t read_avail();
+  bool is_read_avail_more_than(int64_t size);
+  int block_count();
+  int64_t block_read_avail();
+  void skip_empty_blocks();
+  void clear();
+  void reset();
+  void consume(int64_t n);
+  IOBufferReader *clone();
+  void dealloc();
+  IOBufferBlock *get_current_block();
+  bool current_low_water();
+  bool low_water();
+  bool high_water();
+  int64_t memchr(char c, int64_t len = INT64_MAX, int64_t offset = 0);
+  int64_t read(void *buf, int64_t len);
+  char *memcpy(const void *buf, int64_t len = INT64_MAX, int64_t offset = 0);
 
-    char &operator[](int64_t i);
+  char &operator[](int64_t i);
 
-    MIOBuffer *
-    writer() const
-    {
-        return mbuf;
-    }
-    MIOBuffer *
-    allocated() const
-    {
-        return mbuf;
-    }
+  MIOBuffer *
+  writer() const
+  {
+    return mbuf;
+  }
+  MIOBuffer *
+  allocated() const
+  {
+    return mbuf;
+  }
 
-    MIOBufferAccessor *accessor; // pointer back to the accessor
+  MIOBufferAccessor *accessor; // pointer back to the accessor
 
-    MIOBuffer *mbuf;
-    std::shared_ptr<IOBufferBlock> block;
+  MIOBuffer *mbuf;
+  std::shared_ptr<IOBufferBlock> block;
 
-    int64_t start_offset;
-    int64_t size_limit;
+  int64_t start_offset;
+  int64_t size_limit;
 
-    IOBufferReader() : accessor(nullptr), mbuf(nullptr), start_offset(0), size_limit(INT64_MAX) {}
+  IOBufferReader() : accessor(nullptr), mbuf(nullptr), start_offset(0), size_limit(INT64_MAX) {}
 };
 
-class MIOBuffer {
+class MIOBuffer
+{
 public:
-    void fill(int64_t len);
-    void append_block(IOBufferBlock *b);
-    void append_block(int64_t asize_index);
-    void add_block();
-    void append_xmalloced(void *b, int64_t len);
-    void append_fast_allocated(void *b, int64_t len, int64_t fast_size_index);
-    int64_t write(const void *rbuf, int64_t nbytes);
-    int64_t write(IOBufferReader *r, int64_t len = INT64_MAX, int64_t offset = 0);
-    int64_t remove_append(IOBufferReader *);
+  void fill(int64_t len);
+  void append_block(IOBufferBlock *b);
+  void append_block(int64_t asize_index);
+  void add_block();
+  void append_xmalloced(void *b, int64_t len);
+  void append_fast_allocated(void *b, int64_t len, int64_t fast_size_index);
+  int64_t write(const void *rbuf, int64_t nbytes);
+  int64_t write(IOBufferReader *r, int64_t len = INT64_MAX, int64_t offset = 0);
+  int64_t remove_append(IOBufferReader *);
 
-    IOBufferBlock *
-    first_write_block()
-    {
-        if (_writer) {
-            if (_writer->next && !_writer->write_avail()) {
-                return _writer->next.get();
-            }
-            ink_assert(!_writer->next || !_writer->next->read_avail());
-            return _writer.get();
-        }
-
-        return nullptr;
+  IOBufferBlock *
+  first_write_block()
+  {
+    if (_writer) {
+      if (_writer->next && !_writer->write_avail()) {
+        return _writer->next.get();
+      }
+      kassert(!_writer->next || !_writer->next->read_avail());
+      return _writer.get();
     }
 
-    char *
-    buf()
-    {
-        IOBufferBlock *b = first_write_block();
-        return b ? b->buf() : 0;
+    return nullptr;
+  }
+
+  char *
+  buf()
+  {
+    IOBufferBlock *b = first_write_block();
+    return b ? b->buf() : 0;
+  }
+
+  char *
+  buf_end()
+  {
+    return first_write_block()->buf_end();
+  }
+
+  char *
+  start()
+  {
+    return first_write_block()->start();
+  }
+
+  char *
+  end()
+  {
+    return first_write_block()->end();
+  }
+
+  int64_t block_write_avail();
+  int64_t current_write_avail();
+  int64_t write_avail();
+  int64_t block_size();
+
+  int64_t
+  total_size()
+  {
+    return block_size();
+  }
+
+  bool
+  high_water()
+  {
+    return max_read_avail() > water_mark;
+  }
+
+  bool
+  low_water()
+  {
+    return write_avail() <= water_mark;
+  }
+
+  bool
+  current_low_water()
+  {
+    return current_write_avail() <= water_mark;
+  }
+
+  void set_size_index(int64_t size);
+  IOBufferReader *alloc_accessor(MIOBufferAccessor *anAccessor);
+  IOBufferReader *alloc_reader();
+  IOBufferReader *clone_reader(IOBufferReader *r);
+  void dealloc_reader(IOBufferReader *e);
+  void dealloc_all_readers();
+
+  void set(void *b, int64_t len);
+  void set_xmalloced(void *b, int64_t len);
+  void alloc(int64_t i = DEFAULT_BUFFER_SIZES);
+  void alloc_xmalloc(int64_t buf_size);
+  void append_block_internal(IOBufferBlock *b);
+  int64_t puts(char *buf, int64_t len);
+
+  bool
+  empty()
+  {
+    return !_writer;
+  }
+
+  int64_t max_read_avail();
+
+  int max_block_count();
+  void check_add_block();
+
+  IOBufferBlock *get_current_block();
+
+  void
+  reset()
+  {
+    if (_writer) {
+      _writer->reset();
     }
+    for (int j = 0; j < MAX_MIOBUFFER_READERS; j++)
+      if (readers[j].allocated()) {
+        readers[j].reset();
+      }
+  }
 
-    char *
-    buf_end()
-    {
-        return first_write_block()->buf_end();
-    }
+  void
+  init_readers()
+  {
+    for (int j = 0; j < MAX_MIOBUFFER_READERS; j++)
+      if (readers[j].allocated() && !readers[j].block)
+        readers[j].block = _writer;
+  }
 
-    char *
-    start()
-    {
-        return first_write_block()->start();
-    }
+  void
+  dealloc()
+  {
+    _writer = nullptr;
+    dealloc_all_readers();
+  }
 
-    char *
-    end()
-    {
-        return first_write_block()->end();
-    }
+  void
+  clear()
+  {
+    dealloc();
+    size_index = BUFFER_SIZE_NOT_ALLOCATED;
+    water_mark = 0;
+  }
 
-    int64_t block_write_avail();
-    int64_t current_write_avail();
-    int64_t write_avail();
-    int64_t block_size();
+  void
+  realloc(int64_t i)
+  {
+    _writer->realloc(i);
+  }
 
-    int64_t
-    total_size()
-    {
-        return block_size();
-    }
+  void
+  realloc(void *b, int64_t buf_size)
+  {
+    _writer->realloc(b, buf_size);
+  }
 
-    bool
-    high_water()
-    {
-        return max_read_avail() > water_mark;
-    }
+  void
+  realloc_xmalloc(void *b, int64_t buf_size)
+  {
+    _writer->realloc(b, buf_size);
+  }
 
-    bool
-    low_water()
-    {
-        return write_avail() <= water_mark;
-    }
+  void
+  realloc_xmalloc(int64_t buf_size)
+  {
+    // _writer->realloc_xmalloc(buf_size);
+  }
 
-    bool
-    current_low_water()
-    {
-        return current_write_avail() <= water_mark;
-    }
+  int64_t size_index;
 
-    void set_size_index(int64_t size);
-    IOBufferReader *alloc_accessor(MIOBufferAccessor *anAccessor);
-    IOBufferReader *alloc_reader();
-    IOBufferReader *clone_reader(IOBufferReader *r);
-    void dealloc_reader(IOBufferReader *e);
-    void dealloc_all_readers();
+  int64_t water_mark;
 
-    void set(void *b, int64_t len);
-    void set_xmalloced(void *b, int64_t len);
-    void alloc(int64_t i = default_large_iobuffer_size);
-    void alloc_xmalloc(int64_t buf_size);
-    void append_block_internal(IOBufferBlock *b);
-    int64_t puts(char *buf, int64_t len);
+  std::shared_ptr<IOBufferBlock> _writer;
+  IOBufferReader readers[MAX_MIOBUFFER_READERS];
 
-    bool
-    empty()
-    {
-        return !_writer;
-    }
-
-    int64_t max_read_avail();
-
-    int max_block_count();
-    void check_add_block();
-
-    IOBufferBlock *get_current_block();
-
-    void
-    reset()
-    {
-        if (_writer) {
-            _writer->reset();
-        }
-        for (int j = 0; j < MAX_MIOBUFFER_READERS; j++)
-            if (readers[j].allocated()) {
-                readers[j].reset();
-            }
-    }
-
-    void
-    init_readers()
-    {
-        for (int j = 0; j < MAX_MIOBUFFER_READERS; j++)
-            if (readers[j].allocated() && !readers[j].block)
-                readers[j].block = _writer;
-    }
-
-    void
-    dealloc()
-    {
-        _writer = nullptr;
-        dealloc_all_readers();
-    }
-
-    void
-    clear()
-    {
-        dealloc();
-        size_index = BUFFER_SIZE_NOT_ALLOCATED;
-        water_mark = 0;
-    }
-
-    void
-    realloc(int64_t i)
-    {
-        _writer->realloc(i);
-    }
-
-    void
-    realloc(void *b, int64_t buf_size)
-    {
-        _writer->realloc(b, buf_size);
-    }
-
-    void
-    realloc_xmalloc(void *b, int64_t buf_size)
-    {
-        _writer->realloc(b, buf_size);
-    }
-
-    void
-    realloc_xmalloc(int64_t buf_size)
-    {
-        // _writer->realloc_xmalloc(buf_size);
-    }
-
-    int64_t size_index;
-
-    int64_t water_mark;
-
-    Ptr<IOBufferBlock> _writer;
-    IOBufferReader readers[MAX_MIOBUFFER_READERS];
-
-    MIOBuffer(void *b, int64_t bufsize, int64_t aWater_mark);
-    MIOBuffer(int64_t default_size_index);
-    MIOBuffer();
-    ~MIOBuffer();
+  MIOBuffer(void *b, int64_t bufsize, int64_t aWater_mark);
+  MIOBuffer(int64_t default_size_index);
+  MIOBuffer();
+  ~MIOBuffer();
 };
 
 struct MIOBufferAccessor {
-    IOBufferReader *
-    reader()
-    {
-        return entry;
-    }
+  IOBufferReader *
+  reader()
+  {
+    return entry;
+  }
 
-    MIOBuffer *
-    writer()
-    {
-        return mbuf;
-    }
+  MIOBuffer *
+  writer()
+  {
+    return mbuf;
+  }
 
-    int64_t
-    block_size() const
-    {
-        return mbuf->block_size();
-    }
+  int64_t
+  block_size() const
+  {
+    return mbuf->block_size();
+  }
 
-    int64_t
-    total_size() const
-    {
-        return block_size();
-    }
+  int64_t
+  total_size() const
+  {
+    return block_size();
+  }
 
-    void reader_for(IOBufferReader *abuf);
-    void reader_for(MIOBuffer *abuf);
-    void writer_for(MIOBuffer *abuf);
+  void reader_for(IOBufferReader *abuf);
+  void reader_for(MIOBuffer *abuf);
+  void writer_for(MIOBuffer *abuf);
 
-    void
-    clear()
-    {
-        mbuf  = nullptr;
-        entry = nullptr;
-    }
+  void
+  clear()
+  {
+    mbuf  = nullptr;
+    entry = nullptr;
+  }
 
-
-    MIOBufferAccessor()
-            :
+  MIOBufferAccessor()
+    :
 #ifdef DEBUG
-            name(nullptr),
+      name(nullptr),
 #endif
-            mbuf(nullptr),
-            entry(nullptr)
-    {
-    }
+      mbuf(nullptr),
+      entry(nullptr)
+  {
+  }
 
-    ~MIOBufferAccessor();
+  ~MIOBufferAccessor();
 
 #ifdef DEBUG
-    const char *name;
+  const char *name;
 #endif
 
 private:
-    MIOBufferAccessor(const MIOBufferAccessor &);
-    MIOBufferAccessor &operator=(const MIOBufferAccessor &);
+  MIOBufferAccessor(const MIOBufferAccessor &);
+  MIOBufferAccessor &operator=(const MIOBufferAccessor &);
 
-    MIOBuffer *mbuf;
-    IOBufferReader *entry;
+  MIOBuffer *mbuf;
+  IOBufferReader *entry;
 };
 
 #endif // TEST_LOCK_I_IOBUFFER_H
