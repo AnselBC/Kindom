@@ -234,6 +234,17 @@ IOBufferReader::read_avail()
   return t;
 }
 
+inline int64_t
+IOBufferReader::block_read_avail()
+{
+  if (!block) {
+    return 0;
+  }
+
+  skip_empty_blocks();
+  return (int64_t)(block->end() - (block->start() + start_offset));
+}
+
 inline bool
 IOBufferReader::is_read_avail_more_than(int64_t size)
 {
@@ -357,6 +368,13 @@ MIOBuffer::alloc_reader()
   e->accessor = nullptr;
 
   return e;
+}
+
+inline void
+MIOBuffer::append_block(IOBufferBlock *b)
+{
+  kassert(b->read_avail());
+  append_block_internal(b);
 }
 
 inline void
