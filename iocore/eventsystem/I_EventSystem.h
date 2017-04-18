@@ -3,6 +3,7 @@
 
 #include "Kindom.h"
 
+#include "I_IOBuffer.h"
 #include "I_Action.h"
 #include "I_Continuation.h"
 #include "I_EThread.h"
