@@ -56,15 +56,22 @@ IOBufferBlock::clear()
 {
   data = nullptr;
 
-  IOBufferBlock *p = next.get();
+  auto p = next.get();
   while (p) {
-    IOBufferBlock *n = n->next.get();
-    n->data          = nullptr;
-    p->free();
-    p = n;
+    if (next.use_count() == 1) {
+      std::shared_ptr<IOBufferBlock> nptr = p->next;
+      auto n                              = p->next.get();
+      next                                = nptr;
+
+      p->data = nullptr;
+      //    	p->free();
+      p = n;
+    } else {
+      break;
+    }
   }
 
-  next.get()->data = nullptr;
+  next = nullptr;
 
   _buf_end = _end = _start = nullptr;
 }

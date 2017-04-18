@@ -243,6 +243,8 @@ public:
   {
     if (data != nullptr)
       dealloc();
+    data = nullptr;
+    next = nullptr;
   }
   IOBufferBlock(const IOBufferBlock *) : _start(0), _end(0), _buf_end(0) {}
 private:
