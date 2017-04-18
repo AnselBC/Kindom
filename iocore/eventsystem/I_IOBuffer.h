@@ -134,12 +134,103 @@ instead use the alloc or dealloc methods.
   char *_data;
 
   IOBufferData() : _size_index(BUFFER_SIZE_NOT_ALLOCATED), _mem_type(NO_ALLOC), _data(nullptr) {}
-  ~IOBufferData();
+    IOBufferData(int64_t i)
+    {
+        alloc(i);
+    }
 
 private:
   // declaration only
   IOBufferData(const IOBufferData &);
   IOBufferData &operator=(const IOBufferData &);
+};
+
+class IOBufferBlock
+{
+public:
+    char *
+    buf()
+    {
+        return data->_data;
+    }
+
+    char *
+    start()
+    {
+        return _start;
+    }
+
+    char *
+    end()
+    {
+        return _end;
+    }
+
+    char *
+    buf_end()
+    {
+        return _buf_end;
+    }
+
+    int64_t
+    size()
+    {
+        return (int64_t)(_end - _start);
+    }
+
+    int64_t
+    read_avail()
+    {
+        return (int64_t)(_end - _start);
+    }
+
+    int64_t
+    write_avail()
+    {
+        return (int64_t)(_buf_end - _end);
+    }
+
+    int64_t
+    block_size()
+    {
+        return data->block_size();
+    }
+
+    void consume(int64_t len);
+
+    void fill(int64_t len);
+
+    void reset();
+
+    IOBufferBlock *clone();
+
+    void clear();
+
+    void alloc(int64_t i = default_large_iobuffer_size);
+
+    void dealloc();
+
+    void set(IOBufferData *d, int64_t len = 0, int64_t offset = 0);
+    void set_internal(void *b, int64_t len, int64_t asize_index);
+    void realloc_set_internal(void *b, int64_t buf_size, int64_t asize_index);
+    void realloc(void *b, int64_t buf_size);
+    void realloc(int64_t i);
+    void realloc_xmalloc(void *b, int64_t buf_size);
+    void realloc_xmalloc(int64_t buf_size);
+
+    virtual void free();
+
+    char *_start;
+    char *_end;
+    char *_buf_end;
+
+    std::shared_ptr<IOBufferData> data;
+    std::shared_ptr<IOBufferBlock> next;
+    IOBufferBlock();
+
+private:
+    IOBufferBlock(const IOBufferBlock &);
+    IOBufferBlock &operator=(const IOBufferBlock &);
 };
 
 #endif // TEST_LOCK_I_IOBUFFER_H
