@@ -15,7 +15,6 @@ index_to_buffer_size(int64_t idx)
   return idx * DEFAULT_BUFFER_SIZE;
 }
 
-
 ///////////////////////////////////
 ////   IOBufferBlock
 ///////////////////////////////////
@@ -23,123 +22,122 @@ index_to_buffer_size(int64_t idx)
 inline void
 IOBufferBlock::consume(int64_t len)
 {
-    _start += len;
-    kassert(_start <= _end);
+  _start += len;
+  kassert(_start <= _end);
 }
 
 inline void
 IOBufferBlock::fill(int64_t len)
 {
-    _end += len;
-    kassert(_end <= _buf_end);
+  _end += len;
+  kassert(_end <= _buf_end);
 }
 
 inline void
 IOBufferBlock::reset()
 {
-    _end = _start = buf();
-    _buf_end      = buf() + data->block_size();
+  _end = _start = buf();
+  _buf_end      = buf() + data->block_size();
 }
 
 inline IOBufferBlock *
 IOBufferBlock::clone()
 {
-    IOBufferBlock *b = new IOBufferBlock();
-    b->data     = data;
-    b->_start   = _start;
-    b->_end     = _end;
-    b->_buf_end = _end;
-    return b;
+  IOBufferBlock *b = new IOBufferBlock();
+  b->data          = data;
+  b->_start        = _start;
+  b->_end          = _end;
+  b->_buf_end      = _end;
+  return b;
 }
 
 inline void
 IOBufferBlock::clear()
 {
-    data = nullptr;
+  data = nullptr;
 
-    IOBufferBlock *p = next.get();
-    while(p) {
-        IOBufferBlock *n = n->next.get();
-        n->data = nullptr;
-        p->free();
-        p = n;
-    }
+  IOBufferBlock *p = next.get();
+  while (p) {
+    IOBufferBlock *n = n->next.get();
+    n->data          = nullptr;
+    p->free();
+    p = n;
+  }
 
-    next.get()->data = nullptr;
+  next.get()->data = nullptr;
 
-    _buf_end = _end = _start = nullptr;
+  _buf_end = _end = _start = nullptr;
 }
 
 inline void
 IOBufferBlock::alloc(int64_t i)
 {
-    std::shared_ptr<IOBufferData> tmp(new IOBufferData(i));
-    data = tmp;
-    reset();
+  std::shared_ptr<IOBufferData> tmp(new IOBufferData(i));
+  data = tmp;
+  reset();
 }
 
 inline void
 IOBufferBlock::free()
 {
-    dealloc();
-    delete this;
+  dealloc();
+  delete this;
 }
 
 inline void
 IOBufferBlock::dealloc()
 {
-    clear();
+  clear();
 }
 
 inline void
 IOBufferBlock::set(IOBufferData *d, int64_t len, int64_t offset)
 {
-    *data = *d;
-    _start   = buf() + offset;
-    _end     = _start + len;
-    _buf_end = buf() + d->block_size();
+  *data    = *d;
+  _start   = buf() + offset;
+  _end     = _start + len;
+  _buf_end = buf() + d->block_size();
 }
 
 inline void
 IOBufferBlock::set_internal(void *b, int64_t len, int64_t asize_index)
 {
-    std::shared_ptr<IOBufferData> tmp(new IOBufferData(BUFFER_SIZE_NOT_ALLOCATED));
-    data = tmp;
+  std::shared_ptr<IOBufferData> tmp(new IOBufferData(BUFFER_SIZE_NOT_ALLOCATED));
+  data = tmp;
 
-    data->_data = (char *)b;
-    data->_size_index = asize_index;
-    reset();
-    _end = _start + len;
+  data->_data       = (char *)b;
+  data->_size_index = asize_index;
+  reset();
+  _end = _start + len;
 }
 
 inline void
 IOBufferBlock::realloc_set_internal(void *b, int64_t buf_size, int64_t asize_index)
 {
-    int64_t data_size = size();
-    memcpy(b, _start, size());
-    dealloc();
-    set_internal(b, buf_size, asize_index);
-    _end = _start + data_size;
+  int64_t data_size = size();
+  memcpy(b, _start, size());
+  dealloc();
+  set_internal(b, buf_size, asize_index);
+  _end = _start + data_size;
 }
 
 inline void
 IOBufferBlock::realloc(void *b, int64_t buf_size)
 {
-    realloc_set_internal(b, buf_size, BUFFER_SIZE_NOT_ALLOCATED);
+  realloc_set_internal(b, buf_size, BUFFER_SIZE_NOT_ALLOCATED);
 }
 
 inline void
 IOBufferBlock::realloc(int64_t i)
 {
-    if (i == data->_size_index) {
-        return;
-    }
+  if (i == data->_size_index) {
+    return;
+  }
 
-    krelease_assert(i > data->_size_index && i != BUFFER_SIZE_NOT_ALLOCATED);
-    void *b = kmalloc(index_to_buffer_size(i));
-    realloc_set_internal(b, index_to_buffer_size(i), i);
+  krelease_assert(i > data->_size_index && i != BUFFER_SIZE_NOT_ALLOCATED);
+  void *b = kmalloc(index_to_buffer_size(i));
+  realloc_set_internal(b, index_to_buffer_size(i), i);
 }
-
 
 ///////////////////////////////////
 ////   IOBufferData
@@ -148,7 +146,7 @@ IOBufferBlock::realloc(int64_t i)
 inline int64_t
 IOBufferData::block_size()
 {
-    return index_to_buffer_size(_size_index);
+  return index_to_buffer_size(_size_index);
 }
 
 inline void
@@ -163,8 +161,8 @@ IOBufferData::dealloc()
 inline void
 IOBufferData::alloc(int64_t size_index, AllocType type)
 {
-    if (size_index == BUFFER_SIZE_NOT_ALLOCATED)
-        return;
+  if (size_index == BUFFER_SIZE_NOT_ALLOCATED)
+    return;
   if (_data)
     dealloc();
   _size_index = size_index;
@@ -178,6 +176,5 @@ IOBufferData::free()
   dealloc();
   delete this;
 }
-
 
 #endif // TEST_LOCK_P_IOBUFFER_H

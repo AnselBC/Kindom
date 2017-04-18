@@ -7,6 +7,4 @@ main()
   data->alloc(MAX_BUFFER_SIZE_INDEX);
   data->block_size();
   data->dealloc();
-
-	
 }
