@@ -78,6 +78,12 @@
 #define VC_EVENT_DONE CONTINUATION_DONE
 #define VC_EVENT_CONT CONTINUATION_CONT
 
+  enum ShutdownHowTo_t {
+    IO_SHUTDOWN_READ = 0,
+    IO_SHUTDOWN_WRITE,
+    IO_SHUTDOWN_READWRITE
+  };
+
 class VConnection : public Continuation
 {
 public:

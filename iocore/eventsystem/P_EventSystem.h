@@ -8,7 +8,9 @@
 #include "I_EventSystem.h"
 
 #include "P_Thread.h"
+#include "P_VIO.h"
 #include "P_IOBuffer.h"
+#include "P_VConnection.h"
 #include "P_ProtectedQueue.h"
 #include "P_EThread.h"
 #include "P_EventProcessor.h"

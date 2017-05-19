@@ -14,5 +14,7 @@
 #include "I_PriorityEventQueue.h"
 #include "I_ProtectedQueue.h"
 #include "I_Thread.h"
+#include "I_VIO.h"
+#include "I_VConnection.h"
 
 #endif
